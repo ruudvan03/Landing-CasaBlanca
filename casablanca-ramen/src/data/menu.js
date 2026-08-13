@@ -6,12 +6,11 @@ export const steps = [
     key: "fideo",
     label: "Fideo",
     subtitle: "1 a elegir",
-    icon: "🍜",
+    icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11h16c0 5-3.6 9-8 9S4 16 4 11z"/><path d="M4 11c0 0 2-2 8-2s8 2 8 2"/><line x1="9" y1="4" x2="12" y2="9"/><line x1="15" y1="4" x2="12" y2="9"/></svg>`,
     required: true,
     options: [
       { id: "egg-noodle", name: "Egg Noodle", extra: 0 },
       { id: "fideo-cristal", name: "Fideo Cristal", extra: 0 },
-      { id: "gluten-free", name: "Gluten Free", extra: 0 },
     ],
   },
   {
@@ -19,7 +18,7 @@ export const steps = [
     key: "verduras",
     label: "Verduras",
     subtitle: "3 a elegir (50 gr)",
-    icon: "🥦",
+    icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M2 22c2-4 4-8 10-8"/><path d="M12 14c0-6 3-10 10-12-1 7-4 11-10 12z"/><path d="M12 22V14"/></svg>`,
     required: true,
     max: 3,
     options: [
@@ -35,7 +34,7 @@ export const steps = [
     key: "proteina",
     label: "Proteína",
     subtitle: "2 a elegir (80 gr)",
-    icon: "🥩",
+    icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M14 11c0 0 1-5-4-7S4 7 4 7l1 1s1-3 5-2 4 5 4 5z"/><path d="M10 13c0 0-1 5 4 7s6-3 6-3l-1-1s-1 3-5 2-4-5-4-5z"/><path d="M6 12h12"/></svg>`,
     required: true,
     max: 2,
     options: [
@@ -53,7 +52,7 @@ export const steps = [
     key: "extras",
     label: "Extras",
     subtitle: "Opcionales",
-    icon: "✨",
+    icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`,
     required: false,
     options: [
       { id: "doble-pasta", name: "Doble Pasta", extra: 55 },
@@ -71,7 +70,7 @@ export const steps = [
     key: "caldo",
     label: "Caldo",
     subtitle: "1 a elegir",
-    icon: "🍲",
+    icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8h14l-1.5 9A2 2 0 0 1 15.5 19h-7a2 2 0 0 1-2-1z"/><path d="M5 8c0-2 1-4 7-4s7 2 7 4"/><path d="M9 13c0 0 .5 2 3 2s3-2 3-2"/></svg>`,
     required: true,
     options: [
       { id: "hongo-shiitake", name: "Hongo Shiitake", extra: 0 },
