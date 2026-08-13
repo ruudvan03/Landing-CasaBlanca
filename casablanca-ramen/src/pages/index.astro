@@ -1,0 +1,710 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { steps, complementos, pastas, bebidas, postres, RAMEN_PRICE } from '../data/menu.js';
+---
+
+<Layout title="Casablanca Ramen House — Pedidos">
+  <style>
+    /* ── HEADER ── */
+    .site-header {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(10,10,10,0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.75rem 1.5rem;
+      gap: 1rem;
+    }
+    .header-brand { display: flex; align-items: center; gap: 0.75rem; }
+    .header-logo { width: 48px; height: 48px; border-radius: 50%; object-fit: cover; border: 2px solid var(--red); }
+    .header-name { font-family: var(--font-display); font-size: 1rem; color: var(--bone); letter-spacing: 0.05em; line-height: 1.2; }
+    .header-name span { display: block; font-size: 0.65rem; color: var(--red); font-family: var(--font-body); letter-spacing: 0.2em; text-transform: uppercase; }
+    .cart-btn {
+      display: flex; align-items: center; gap: 0.5rem;
+      background: var(--red); color: white; border: none;
+      padding: 0.5rem 1.1rem; border-radius: 6px;
+      font-size: 0.85rem; font-weight: 600; letter-spacing: 0.03em;
+      cursor: pointer; transition: background 0.2s;
+    }
+    .cart-btn:hover { background: var(--red-dark); }
+    .cart-count {
+      background: white; color: var(--red);
+      width: 20px; height: 20px; border-radius: 50%;
+      font-size: 0.7rem; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      position: relative; overflow: hidden;
+      padding: 4rem 1.5rem 3rem;
+      text-align: center;
+      background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(204,26,26,0.18) 0%, transparent 70%);
+    }
+    .hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='40'%3E%3Cpath d='M0 20 Q10 0 20 20 Q30 40 40 20 Q50 0 60 20 Q70 40 80 20' fill='none' stroke='rgba(204,26,26,0.08)' stroke-width='1.5'/%3E%3C/svg%3E");
+      background-size: 80px 40px;
+    }
+    .hero-content { position: relative; z-index: 1; max-width: 560px; margin: 0 auto; }
+    .hero-logo { width: 110px; height: 110px; border-radius: 50%; object-fit: cover; border: 3px solid var(--red); box-shadow: 0 0 32px var(--red-glow); margin-bottom: 1.5rem; }
+    .hero-eyebrow { font-size: 0.7rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--red); margin-bottom: 0.75rem; }
+    .hero-title { font-family: var(--font-display); font-size: clamp(2rem, 5vw, 3.2rem); color: var(--bone); line-height: 1.1; margin-bottom: 0.5rem; }
+    .hero-title em { color: var(--red); font-style: normal; }
+    .hero-subtitle { color: var(--muted); font-size: 0.95rem; margin-bottom: 1.5rem; }
+    .hero-price-badge {
+      display: inline-flex; align-items: baseline; gap: 0.3rem;
+      background: var(--red); color: white;
+      padding: 0.5rem 1.2rem; border-radius: 100px;
+      font-family: var(--font-display); font-size: 1.4rem; font-weight: 700;
+    }
+    .hero-price-badge sup { font-size: 0.75rem; align-self: flex-start; margin-top: 0.2rem; }
+    .hero-price-badge small { font-family: var(--font-body); font-size: 0.7rem; opacity: 0.85; font-weight: 400; }
+
+    /* ── NAV TABS ── */
+    .nav-tabs {
+      display: flex; gap: 0; overflow-x: auto; scrollbar-width: none;
+      border-bottom: 1px solid var(--border-dim);
+      padding: 0 1rem;
+      position: sticky; top: 73px; z-index: 90;
+      background: rgba(10,10,10,0.95); backdrop-filter: blur(8px);
+    }
+    .nav-tabs::-webkit-scrollbar { display: none; }
+    .nav-tab {
+      flex-shrink: 0; padding: 0.75rem 1.1rem;
+      background: none; border: none; color: var(--muted);
+      font-size: 0.8rem; font-weight: 500; letter-spacing: 0.05em;
+      border-bottom: 2px solid transparent; margin-bottom: -1px;
+      transition: color 0.2s, border-color 0.2s; cursor: pointer;
+      text-transform: uppercase;
+    }
+    .nav-tab:hover { color: var(--bone); }
+    .nav-tab.active { color: var(--red); border-bottom-color: var(--red); }
+
+    /* ── MAIN LAYOUT ── */
+    .page-body { display: flex; gap: 0; max-width: 1200px; margin: 0 auto; }
+    .menu-area { flex: 1; min-width: 0; padding: 2rem 1.5rem; }
+    .order-sidebar {
+      width: 340px; flex-shrink: 0;
+      padding: 1.5rem;
+      position: sticky; top: 113px; height: calc(100vh - 113px);
+      overflow-y: auto;
+      border-left: 1px solid var(--border-dim);
+    }
+
+    /* ── SECTION ── */
+    .section { margin-bottom: 3rem; scroll-margin-top: 130px; }
+    .section-header { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.25rem; }
+    .section-icon { font-size: 1.4rem; }
+    .section-title { font-family: var(--font-display); font-size: 1.1rem; color: var(--bone); letter-spacing: 0.05em; }
+    .section-line { flex: 1; height: 1px; background: var(--border-dim); }
+
+    /* ── RAMEN BUILDER ── */
+    .builder-steps { display: flex; flex-direction: column; gap: 1.5rem; }
+    .step-card {
+      background: var(--card); border: 1px solid var(--border-dim);
+      border-radius: 10px; overflow: hidden; transition: border-color 0.2s;
+    }
+    .step-card.active { border-color: var(--border); }
+    .step-header {
+      display: flex; align-items: center; gap: 0.75rem;
+      padding: 0.9rem 1.1rem;
+      background: rgba(204,26,26,0.06);
+      border-bottom: 1px solid var(--border-dim);
+    }
+    .step-num {
+      width: 26px; height: 26px; border-radius: 50%;
+      background: var(--red); color: white;
+      font-size: 0.72rem; font-weight: 700; font-family: var(--font-display);
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .step-label { font-weight: 600; font-size: 0.9rem; color: var(--bone); }
+    .step-sub { font-size: 0.72rem; color: var(--muted); margin-left: auto; }
+    .step-required { font-size: 0.65rem; color: var(--red); margin-left: 0.5rem; }
+    .step-options { display: flex; flex-wrap: wrap; gap: 0.5rem; padding: 1rem 1.1rem; }
+    .option-chip {
+      padding: 0.45rem 0.85rem; border-radius: 100px;
+      border: 1px solid var(--border-dim); background: transparent;
+      color: var(--muted); font-size: 0.78rem; font-weight: 500;
+      cursor: pointer; transition: all 0.15s; display: flex; align-items: center; gap: 0.35rem;
+    }
+    .option-chip:hover { border-color: rgba(204,26,26,0.5); color: var(--bone); }
+    .option-chip.selected { border-color: var(--red); background: var(--red-glow); color: var(--bone); }
+    .option-extra { font-size: 0.68rem; color: var(--red); }
+
+    /* ── CARDS GRID ── */
+    .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 0.75rem; }
+    .menu-card {
+      background: var(--card); border: 1px solid var(--border-dim);
+      border-radius: 8px; padding: 0.9rem;
+      transition: all 0.15s; display: flex; flex-direction: column; gap: 0.35rem;
+    }
+    .menu-card:hover { border-color: rgba(204,26,26,0.4); background: var(--card-hover); }
+    .card-name { font-size: 0.82rem; font-weight: 500; color: var(--bone); line-height: 1.3; }
+    .card-note { font-size: 0.68rem; color: var(--muted); }
+    .card-price { font-family: var(--font-display); font-size: 0.95rem; color: var(--red); margin-top: auto; }
+
+    /* ── ORDER SIDEBAR ── */
+    .sidebar-title { font-family: var(--font-display); font-size: 1rem; color: var(--bone); margin-bottom: 1rem; letter-spacing: 0.05em; }
+    .order-empty { color: var(--muted); font-size: 0.82rem; text-align: center; padding: 2rem 0; }
+    .order-section { margin-bottom: 1rem; }
+    .order-section-label { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.15em; color: var(--muted); margin-bottom: 0.4rem; }
+    .order-items { display: flex; flex-direction: column; gap: 0.3rem; }
+    .order-item {
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 0.8rem; color: var(--bone); padding: 0.3rem 0;
+      border-bottom: 1px solid var(--border-dim);
+    }
+    .order-item-price { color: var(--red); font-weight: 600; white-space: nowrap; }
+    .order-total {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 0.75rem 0; margin-top: 0.5rem;
+      border-top: 1px solid var(--border);
+      font-family: var(--font-display); font-size: 1rem;
+    }
+    .order-total-price { color: var(--red); font-size: 1.2rem; }
+    .order-actions { display: flex; flex-direction: column; gap: 0.5rem; margin-top: 1rem; }
+    .btn-primary {
+      width: 100%; padding: 0.75rem; border-radius: 7px;
+      background: var(--red); color: white; border: none;
+      font-weight: 600; font-size: 0.9rem; letter-spacing: 0.05em; cursor: pointer;
+      transition: background 0.2s;
+    }
+    .btn-primary:hover { background: var(--red-dark); }
+    .btn-primary:disabled { background: #444; cursor: not-allowed; }
+    .btn-secondary {
+      width: 100%; padding: 0.6rem; border-radius: 7px;
+      background: transparent; color: var(--muted);
+      border: 1px solid var(--border-dim); font-size: 0.8rem; cursor: pointer;
+      transition: all 0.15s;
+    }
+    .btn-secondary:hover { color: var(--bone); border-color: rgba(255,255,255,0.2); }
+
+    /* Progress */
+    .progress-bar { margin-bottom: 1.5rem; }
+    .progress-label { display: flex; justify-content: space-between; font-size: 0.72rem; color: var(--muted); margin-bottom: 0.4rem; }
+    .progress-track { height: 3px; background: var(--border-dim); border-radius: 2px; overflow: hidden; }
+    .progress-fill { height: 100%; background: var(--red); border-radius: 2px; transition: width 0.4s ease; }
+
+    /* qty */
+    .qty-row { display: flex; align-items: center; justify-content: space-between; margin-top: 0.5rem; }
+    .qty-ctrl { display: flex; align-items: center; gap: 0.4rem; }
+    .qty-btn {
+      width: 24px; height: 24px; border-radius: 50%;
+      background: var(--card); border: 1px solid var(--border-dim);
+      color: var(--bone); font-size: 0.9rem; line-height: 1; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; transition: all 0.15s;
+    }
+    .qty-btn:hover { border-color: var(--red); color: var(--red); }
+    .qty-val { font-size: 0.82rem; min-width: 16px; text-align: center; }
+
+    /* ── MODAL ── */
+    .modal-overlay {
+      position: fixed; inset: 0; z-index: 200;
+      background: rgba(0,0,0,0.85); backdrop-filter: blur(4px);
+      display: flex; align-items: center; justify-content: center; padding: 1rem;
+      opacity: 0; pointer-events: none; transition: opacity 0.25s;
+    }
+    .modal-overlay.open { opacity: 1; pointer-events: all; }
+    .modal {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 14px; padding: 2rem; max-width: 480px; width: 100%;
+      max-height: 90vh; overflow-y: auto; position: relative;
+      transform: translateY(12px); transition: transform 0.25s;
+    }
+    .modal-overlay.open .modal { transform: translateY(0); }
+    .modal-title { font-family: var(--font-display); font-size: 1.1rem; color: var(--bone); margin-bottom: 1.25rem; }
+    .modal-field { margin-bottom: 1rem; }
+    .modal-label { display: block; font-size: 0.75rem; color: var(--muted); margin-bottom: 0.4rem; letter-spacing: 0.05em; }
+    .modal-input {
+      width: 100%; padding: 0.6rem 0.8rem; border-radius: 6px;
+      background: var(--card); border: 1px solid var(--border-dim);
+      color: var(--bone); font-size: 0.88rem; font-family: var(--font-body);
+      transition: border-color 0.2s;
+    }
+    .modal-input:focus { outline: none; border-color: var(--red); }
+    .modal-close { position: absolute; top: 1rem; right: 1rem; background: none; border: none; color: var(--muted); font-size: 1.3rem; cursor: pointer; }
+    .modal-close:hover { color: var(--bone); }
+    .modal-summary { background: var(--card); border-radius: 8px; padding: 1rem; margin-bottom: 1.25rem; }
+    .modal-summary-row { display: flex; justify-content: space-between; font-size: 0.8rem; padding: 0.25rem 0; color: var(--muted); }
+    .modal-summary-row.total { color: var(--bone); font-weight: 700; border-top: 1px solid var(--border-dim); margin-top: 0.5rem; padding-top: 0.5rem; }
+    .modal-summary-price { color: var(--red); }
+
+    /* ── TOAST ── */
+    .toast {
+      position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%) translateY(80px);
+      background: var(--card); border: 1px solid var(--red); color: var(--bone);
+      padding: 0.65rem 1.2rem; border-radius: 100px; font-size: 0.82rem; font-weight: 500;
+      z-index: 300; transition: transform 0.3s ease; white-space: nowrap;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); }
+
+    /* ── FOOTER ── */
+    .site-footer {
+      text-align: center; padding: 2rem 1.5rem;
+      border-top: 1px solid var(--border-dim); color: var(--muted); font-size: 0.75rem;
+    }
+    .footer-social { display: flex; justify-content: center; gap: 1.5rem; margin-bottom: 0.5rem; }
+    .footer-social a { color: var(--muted); text-decoration: none; }
+    .footer-social a:hover { color: var(--red); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) {
+      .order-sidebar { display: none; }
+      .mobile-cart-bar {
+        display: flex; position: fixed; bottom: 0; left: 0; right: 0; z-index: 95;
+        background: var(--surface); border-top: 1px solid var(--border);
+        padding: 0.75rem 1rem; gap: 1rem; align-items: center;
+      }
+      .mobile-cart-summary { flex: 1; font-size: 0.8rem; color: var(--muted); }
+      .mobile-cart-total { font-family: var(--font-display); color: var(--red); }
+      body { padding-bottom: 70px; }
+    }
+    @media (min-width: 769px) { .mobile-cart-bar { display: none; } }
+  </style>
+
+  <!-- HEADER -->
+  <header class="site-header">
+    <div class="header-brand">
+      <img src="/logo.jpg" alt="Logo Casablanca" class="header-logo" />
+      <div class="header-name">Casablanca<span>Ramen House</span></div>
+    </div>
+    <button class="cart-btn" id="open-modal-btn">
+      🛒 Mi Pedido
+      <span class="cart-count" id="cart-count">0</span>
+    </button>
+  </header>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-content">
+      <img src="/logo.jpg" alt="Casablanca Ramen House" class="hero-logo" />
+      <p class="hero-eyebrow">Casablanca Ramen House</p>
+      <h1 class="hero-title">Arma tu <em>Ramen</em><br/>en 5 pasos</h1>
+      <p class="hero-subtitle">32 oz de sabor — elige tu fideo, verduras, proteína, extras y caldo</p>
+      <div class="hero-price-badge"><sup>$</sup>175 <small>MXN · 32 oz</small></div>
+    </div>
+  </section>
+
+  <!-- NAV TABS -->
+  <nav class="nav-tabs" id="nav-tabs">
+    <button class="nav-tab active" data-section="ramen">🍜 Arma tu Ramen</button>
+    <button class="nav-tab" data-section="complementos">🥟 Complementos</button>
+    <button class="nav-tab" data-section="pastas">🍝 Pastas</button>
+    <button class="nav-tab" data-section="bebidas">🥤 Bebidas</button>
+    <button class="nav-tab" data-section="postres">🍡 Postres</button>
+  </nav>
+
+  <!-- MAIN -->
+  <div class="page-body">
+    <main class="menu-area">
+
+      <!-- RAMEN BUILDER -->
+      <section class="section" id="sec-ramen">
+        <div class="section-header">
+          <span class="section-icon">🍜</span>
+          <h2 class="section-title">Arma tu Ramen</h2>
+          <div class="section-line"></div>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-label">
+            <span id="progress-text">0 de 4 pasos requeridos</span>
+            <span id="progress-pct">0%</span>
+          </div>
+          <div class="progress-track"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+        </div>
+        <div class="builder-steps">
+          {steps.map((step) => (
+            <div class="step-card" id={`step-${step.id}`}>
+              <div class="step-header">
+                <div class="step-num">{step.id}</div>
+                <span class="step-label">{step.label}</span>
+                <span class="step-sub">{step.subtitle}</span>
+                {step.required && <span class="step-required">*</span>}
+              </div>
+              <div class="step-options">
+                {step.options.map((opt) => (
+                  <button
+                    class="option-chip"
+                    data-step={step.key}
+                    data-id={opt.id}
+                    data-name={opt.name}
+                    data-extra={opt.extra || 0}
+                    data-max={step.max || 1}
+                  >
+                    {opt.name}
+                    {opt.extra > 0 && <span class="option-extra">+${opt.extra}</span>}
+                  </button>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+        <div style="margin-top:1.5rem;">
+          <button class="btn-primary" id="add-ramen-btn" disabled>Agregar Ramen al pedido</button>
+        </div>
+      </section>
+
+      <!-- COMPLEMENTOS -->
+      <section class="section" id="sec-complementos">
+        <div class="section-header">
+          <span class="section-icon">🥟</span>
+          <h2 class="section-title">Complementos</h2>
+          <div class="section-line"></div>
+        </div>
+        <div class="cards-grid">
+          {complementos.map((item) => (
+            <div class="menu-card">
+              <span class="card-name">{item.name}</span>
+              <span class="card-price">${item.price}</span>
+              <div class="qty-row">
+                <span style="font-size:0.7rem;color:var(--muted);">Cantidad</span>
+                <div class="qty-ctrl">
+                  <button class="qty-btn" data-action="minus" data-id={item.id}>−</button>
+                  <span class="qty-val" id={`qty-${item.id}`}>0</span>
+                  <button class="qty-btn" data-action="plus" data-cat="complementos" data-id={item.id} data-name={item.name} data-price={item.price}>+</button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <!-- PASTAS -->
+      <section class="section" id="sec-pastas">
+        <div class="section-header">
+          <span class="section-icon">🍝</span>
+          <h2 class="section-title">Pastas</h2>
+          <div class="section-line"></div>
+        </div>
+        <div class="cards-grid">
+          {pastas.map((item) => (
+            <div class="menu-card">
+              <span class="card-name">{item.name}</span>
+              <span class="card-price">${item.price}</span>
+              <div class="qty-row">
+                <span style="font-size:0.7rem;color:var(--muted);">Cantidad</span>
+                <div class="qty-ctrl">
+                  <button class="qty-btn" data-action="minus" data-id={item.id}>−</button>
+                  <span class="qty-val" id={`qty-${item.id}`}>0</span>
+                  <button class="qty-btn" data-action="plus" data-cat="pastas" data-id={item.id} data-name={item.name} data-price={item.price}>+</button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <!-- BEBIDAS -->
+      <section class="section" id="sec-bebidas">
+        <div class="section-header">
+          <span class="section-icon">🥤</span>
+          <h2 class="section-title">Bebidas</h2>
+          <div class="section-line"></div>
+        </div>
+        <div class="cards-grid">
+          {bebidas.map((item) => (
+            <div class="menu-card">
+              <span class="card-name">{item.name}</span>
+              <span class="card-price">${item.price}</span>
+              <div class="qty-row">
+                <span style="font-size:0.7rem;color:var(--muted);">Cantidad</span>
+                <div class="qty-ctrl">
+                  <button class="qty-btn" data-action="minus" data-id={item.id}>−</button>
+                  <span class="qty-val" id={`qty-${item.id}`}>0</span>
+                  <button class="qty-btn" data-action="plus" data-cat="bebidas" data-id={item.id} data-name={item.name} data-price={item.price}>+</button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <!-- POSTRES -->
+      <section class="section" id="sec-postres">
+        <div class="section-header">
+          <span class="section-icon">🍡</span>
+          <h2 class="section-title">Postres</h2>
+          <div class="section-line"></div>
+        </div>
+        <div class="cards-grid">
+          {postres.map((item) => (
+            <div class="menu-card">
+              <span class="card-name">{item.name}</span>
+              {item.note && <span class="card-note">{item.note}</span>}
+              <span class="card-price">${item.price}</span>
+              <div class="qty-row">
+                <span style="font-size:0.7rem;color:var(--muted);">Cantidad</span>
+                <div class="qty-ctrl">
+                  <button class="qty-btn" data-action="minus" data-id={item.id}>−</button>
+                  <span class="qty-val" id={`qty-${item.id}`}>0</span>
+                  <button class="qty-btn" data-action="plus" data-cat="postres" data-id={item.id} data-name={item.name} data-price={item.price}>+</button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+    </main>
+
+    <!-- SIDEBAR -->
+    <aside class="order-sidebar">
+      <h3 class="sidebar-title">Tu Pedido</h3>
+      <div id="sidebar-order-content">
+        <p class="order-empty">Tu pedido está vacío.<br/>Arma tu ramen para comenzar.</p>
+      </div>
+      <div id="sidebar-total" style="display:none;">
+        <div class="order-total">
+          <span>Total</span>
+          <span class="order-total-price" id="sidebar-total-price">$0</span>
+        </div>
+        <div class="order-actions">
+          <button class="btn-primary" id="confirm-btn">Confirmar Pedido</button>
+          <button class="btn-secondary" id="clear-btn">Limpiar pedido</button>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <!-- MOBILE BAR -->
+  <div class="mobile-cart-bar">
+    <div class="mobile-cart-summary"><span id="mobile-item-count">0 items</span></div>
+    <div class="mobile-cart-total" id="mobile-total">$0</div>
+    <button class="btn-primary" style="width:auto;padding:0.5rem 1rem;font-size:0.8rem;" id="mobile-open-modal">Ver pedido</button>
+  </div>
+
+  <!-- MODAL -->
+  <div class="modal-overlay" id="modal-overlay">
+    <div class="modal">
+      <button class="modal-close" id="modal-close">✕</button>
+      <h3 class="modal-title">Confirmar Pedido</h3>
+      <div id="modal-summary" class="modal-summary"></div>
+      <div class="modal-field">
+        <label class="modal-label" for="field-mesa">Mesa / Número *</label>
+        <input class="modal-input" id="field-mesa" type="text" placeholder="Ej: Mesa 4" />
+      </div>
+      <div class="modal-field">
+        <label class="modal-label" for="field-nombre">Nombre (opcional)</label>
+        <input class="modal-input" id="field-nombre" type="text" placeholder="Tu nombre" />
+      </div>
+      <div class="modal-field">
+        <label class="modal-label" for="field-notas">Notas especiales (opcional)</label>
+        <input class="modal-input" id="field-notas" type="text" placeholder="Sin picante, alergia a mariscos..." />
+      </div>
+      <div style="display:flex;gap:0.5rem;margin-top:1rem;">
+        <button class="btn-secondary" id="modal-cancel" style="flex:1;">Cancelar</button>
+        <button class="btn-primary" id="modal-submit" style="flex:1;">Enviar Pedido</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div class="toast" id="toast"></div>
+
+  <!-- FOOTER -->
+  <footer class="site-footer">
+    <div class="footer-social">
+      <a href="https://instagram.com/casablanca_ramenhouse" target="_blank">📸 @casablanca_ramenhouse</a>
+      <a href="#" target="_blank">📘 Casablanca RAMEN HOUSE</a>
+    </div>
+    <p>© 2025 Casablanca Ramen House · Todos los derechos reservados</p>
+  </footer>
+
+  <script define:vars={{ RAMEN_PRICE }}>
+    const state = {
+      ramen: { fideo:[], verduras:[], proteina:[], extras:[], caldo:[] },
+      extras: {},
+      ramenItems: [],
+    };
+
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2200);
+    }
+    function fmt(n) { return '$' + n.toLocaleString('es-MX'); }
+
+    function updateProgress() {
+      const required = ['fideo','verduras','proteina','caldo'];
+      const done = required.filter(k => state.ramen[k].length > 0).length;
+      const pct = Math.round((done / required.length) * 100);
+      document.getElementById('progress-fill').style.width = pct + '%';
+      document.getElementById('progress-pct').textContent = pct + '%';
+      document.getElementById('progress-text').textContent = `${done} de ${required.length} pasos requeridos`;
+      document.getElementById('add-ramen-btn').disabled = done < required.length;
+    }
+
+    document.querySelectorAll('.option-chip').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const step = btn.dataset.step;
+        const id = btn.dataset.id;
+        const name = btn.dataset.name;
+        const extra = parseInt(btn.dataset.extra) || 0;
+        const max = parseInt(btn.dataset.max) || 1;
+        const arr = state.ramen[step];
+        const idx = arr.findIndex(x => x.id === id);
+        if (idx >= 0) {
+          arr.splice(idx, 1);
+          btn.classList.remove('selected');
+        } else {
+          if (max === 1) {
+            arr.length = 0;
+            document.querySelectorAll(`[data-step="${step}"]`).forEach(b => b.classList.remove('selected'));
+          } else if (arr.length >= max) {
+            showToast(`Máximo ${max} opciones para ${step}`);
+            return;
+          }
+          arr.push({ id, name, extra });
+          btn.classList.add('selected');
+        }
+        updateProgress();
+        renderSidebar();
+      });
+    });
+
+    document.getElementById('add-ramen-btn').addEventListener('click', () => {
+      const r = state.ramen;
+      const extrasTotal = r.extras.reduce((s, x) => s + x.extra, 0);
+      state.ramenItems.push({
+        fideo:[...r.fideo], verduras:[...r.verduras], proteina:[...r.proteina],
+        extras:[...r.extras], caldo:[...r.caldo], total: RAMEN_PRICE + extrasTotal,
+      });
+      ['fideo','verduras','proteina','extras','caldo'].forEach(k => state.ramen[k] = []);
+      document.querySelectorAll('.option-chip').forEach(b => b.classList.remove('selected'));
+      updateProgress();
+      renderSidebar();
+      showToast('🍜 Ramen agregado al pedido');
+    });
+
+    document.querySelectorAll('.qty-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const action = btn.dataset.action;
+        const id = btn.dataset.id;
+        if (!id) return;
+        if (!state.extras[id]) {
+          state.extras[id] = { name: btn.dataset.name||id, price: parseInt(btn.dataset.price)||0, qty:0, cat: btn.dataset.cat };
+        }
+        if (action === 'plus') state.extras[id].qty++;
+        else if (state.extras[id].qty > 0) state.extras[id].qty--;
+        const el = document.getElementById('qty-' + id);
+        if (el) el.textContent = state.extras[id].qty;
+        renderSidebar();
+      });
+    });
+
+    function renderSidebar() {
+      const content = document.getElementById('sidebar-order-content');
+      const totalBox = document.getElementById('sidebar-total');
+      let sections = [], grandTotal = 0, itemCount = 0;
+
+      if (state.ramenItems.length > 0) {
+        const rows = state.ramenItems.map((r,i) => {
+          grandTotal += r.total; itemCount++;
+          const label = r.fideo[0]?.name || 'Ramen';
+          return `<div class="order-item"><span>Ramen ${i+1} — ${label}</span><span class="order-item-price">${fmt(r.total)}</span></div>`;
+        }).join('');
+        sections.push(`<div class="order-section"><div class="order-section-label">Ramen</div><div class="order-items">${rows}</div></div>`);
+      }
+
+      const extraItems = Object.values(state.extras).filter(e => e.qty > 0);
+      if (extraItems.length > 0) {
+        const rows = extraItems.map(e => {
+          const sub = e.price * e.qty; grandTotal += sub; itemCount += e.qty;
+          return `<div class="order-item"><span>${e.qty}× ${e.name}</span><span class="order-item-price">${fmt(sub)}</span></div>`;
+        }).join('');
+        sections.push(`<div class="order-section"><div class="order-section-label">Otros</div><div class="order-items">${rows}</div></div>`);
+      }
+
+      const inProgress = ['fideo','verduras','proteina','caldo'].some(k => state.ramen[k].length > 0);
+      if (inProgress) sections.push(`<div class="order-section"><div class="order-section-label" style="color:var(--red);">En construcción…</div><div style="font-size:0.75rem;color:var(--muted);">Completa los pasos y presiona "Agregar"</div></div>`);
+
+      if (sections.length === 0) {
+        content.innerHTML = '<p class="order-empty">Tu pedido está vacío.<br/>Arma tu ramen para comenzar.</p>';
+        totalBox.style.display = 'none';
+      } else {
+        content.innerHTML = sections.join('');
+        totalBox.style.display = 'block';
+        document.getElementById('sidebar-total-price').textContent = fmt(grandTotal);
+      }
+      document.getElementById('mobile-item-count').textContent = itemCount + (itemCount===1?' item':' items');
+      document.getElementById('mobile-total').textContent = fmt(grandTotal);
+      document.getElementById('cart-count').textContent = itemCount;
+    }
+
+    // NAV TABS
+    document.querySelectorAll('.nav-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        document.getElementById('sec-' + tab.dataset.section)?.scrollIntoView({ behavior:'smooth' });
+      });
+    });
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          const id = e.target.id.replace('sec-','');
+          document.querySelectorAll('.nav-tab').forEach(t => t.classList.toggle('active', t.dataset.section === id));
+        }
+      });
+    }, { rootMargin:'-30% 0px -60% 0px' });
+    ['ramen','complementos','pastas','bebidas','postres'].forEach(id => {
+      const el = document.getElementById('sec-'+id);
+      if (el) observer.observe(el);
+    });
+
+    // MODAL
+    function openModal() {
+      let html = '', total = 0;
+      state.ramenItems.forEach((r,i) => {
+        html += `<div class="modal-summary-row"><span>Ramen ${i+1} (${r.fideo[0]?.name||''})</span><span class="modal-summary-price">${fmt(r.total)}</span></div>`;
+        total += r.total;
+      });
+      Object.values(state.extras).filter(e=>e.qty>0).forEach(e => {
+        const sub = e.price*e.qty;
+        html += `<div class="modal-summary-row"><span>${e.qty}× ${e.name}</span><span class="modal-summary-price">${fmt(sub)}</span></div>`;
+        total += sub;
+      });
+      html += `<div class="modal-summary-row total"><span>Total</span><span class="modal-summary-price">${fmt(total)}</span></div>`;
+      document.getElementById('modal-summary').innerHTML = html || '<p style="font-size:0.8rem;color:var(--muted);">Pedido vacío</p>';
+      document.getElementById('modal-overlay').classList.add('open');
+    }
+    function closeModal() { document.getElementById('modal-overlay').classList.remove('open'); }
+
+    document.getElementById('open-modal-btn').addEventListener('click', openModal);
+    document.getElementById('mobile-open-modal').addEventListener('click', openModal);
+    document.getElementById('confirm-btn')?.addEventListener('click', openModal);
+    document.getElementById('modal-close').addEventListener('click', closeModal);
+    document.getElementById('modal-cancel').addEventListener('click', closeModal);
+    document.getElementById('modal-overlay').addEventListener('click', e => { if(e.target===document.getElementById('modal-overlay')) closeModal(); });
+
+    document.getElementById('modal-submit').addEventListener('click', () => {
+      const mesa = document.getElementById('field-mesa').value.trim();
+      if (!mesa) { document.getElementById('field-mesa').focus(); showToast('Por favor indica tu mesa'); return; }
+      const nombre = document.getElementById('field-nombre').value.trim();
+      state.ramenItems.length = 0;
+      Object.keys(state.extras).forEach(k => delete state.extras[k]);
+      ['fideo','verduras','proteina','extras','caldo'].forEach(k => state.ramen[k] = []);
+      document.querySelectorAll('.option-chip').forEach(b => b.classList.remove('selected'));
+      document.querySelectorAll('.qty-val').forEach(el => el.textContent = '0');
+      updateProgress(); renderSidebar(); closeModal();
+      document.getElementById('field-mesa').value = '';
+      document.getElementById('field-nombre').value = '';
+      document.getElementById('field-notas').value = '';
+      showToast(`✅ Pedido enviado — ${mesa}${nombre?', '+nombre:''}`);
+    });
+
+    document.getElementById('clear-btn')?.addEventListener('click', () => {
+      state.ramenItems.length = 0;
+      Object.keys(state.extras).forEach(k => delete state.extras[k]);
+      document.querySelectorAll('.qty-val').forEach(el => el.textContent = '0');
+      renderSidebar();
+      showToast('Pedido limpiado');
+    });
+
+    updateProgress();
+  </script>
+</Layout>

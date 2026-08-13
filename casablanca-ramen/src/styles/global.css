@@ -1,0 +1,52 @@
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Inter:wght@300;400;500;600&family=Noto+Serif+JP:wght@400;700&display=swap');
+
+:root {
+  --black:       #0A0A0A;
+  --surface:     #141414;
+  --card:        #1C1C1C;
+  --card-hover:  #242424;
+  --red:         #CC1A1A;
+  --red-dark:    #8B0000;
+  --red-glow:    rgba(204,26,26,0.25);
+  --bone:        #F0EDE8;
+  --muted:       #888;
+  --border:      rgba(204,26,26,0.3);
+  --border-dim:  rgba(255,255,255,0.08);
+  --font-display: 'Cinzel', 'Noto Serif JP', serif;
+  --font-body:    'Inter', system-ui, sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html {
+  background: var(--black);
+  color: var(--bone);
+  font-family: var(--font-body);
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--surface); }
+::-webkit-scrollbar-thumb { background: var(--red-dark); border-radius: 3px; }
+
+/* Wave pattern */
+.wave-bg {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='40'%3E%3Cpath d='M0 20 Q10 0 20 20 Q30 40 40 20 Q50 0 60 20 Q70 40 80 20' fill='none' stroke='rgba(204,26,26,0.12)' stroke-width='1.5'/%3E%3C/svg%3E");
+  background-size: 80px 40px;
+}
+
+/* Utility */
+.sr-only {
+  position: absolute; width:1px; height:1px;
+  padding:0; margin:-1px; overflow:hidden;
+  clip:rect(0,0,0,0); border:0;
+}
+
+button { cursor: pointer; font-family: var(--font-body); }
