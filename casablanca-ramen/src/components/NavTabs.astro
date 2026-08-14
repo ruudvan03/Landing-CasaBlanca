@@ -1,0 +1,25 @@
+---
+const tabs = [
+  { key: 'ramen', label: 'Arma tu Ramen' },
+  { key: 'complementos', label: 'Complementos' },
+  { key: 'pastas', label: 'Pastas' },
+  { key: 'bebidas', label: 'Bebidas' },
+  { key: 'postres', label: 'Postres' },
+];
+---
+<nav
+  class="flex gap-0 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden border-b border-border-dim px-6 sticky top-[73px] z-[90] bg-[rgba(10,10,10,0.97)] backdrop-blur-md"
+  id="nav-tabs"
+>
+  {
+    tabs.map((tab, i) => (
+      <button
+        class="flex-shrink-0 px-[1.4rem] py-4 bg-transparent border-0 text-muted text-[0.7rem] font-semibold tracking-[0.18em] uppercase cursor-pointer relative -mb-px transition-colors duration-200 hover:text-bone data-[active]:text-bone before:content-[''] before:absolute before:left-1/2 before:-bottom-px before:h-0.5 before:w-0 before:-translate-x-1/2 before:bg-red before:transition-[width] before:duration-200 before:ease-in-out hover:before:w-3/5 data-[active]:before:w-full data-[active]:hover:before:w-full"
+        data-section={tab.key}
+        {...(i === 0 ? { 'data-active': true } : {})}
+      >
+        {tab.label}
+      </button>
+    ))
+  }
+</nav>
