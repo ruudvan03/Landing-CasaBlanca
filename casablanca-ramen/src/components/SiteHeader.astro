@@ -1,0 +1,23 @@
+---
+---
+<header class="sticky top-0 z-[100] bg-[rgba(10,10,10,0.92)] backdrop-blur-md border-b border-border-dim flex items-center justify-between px-6 py-3 gap-4">
+  <div class="flex items-center gap-3">
+    <img src="/logo.jpg" alt="Logo Casablanca" class="w-12 h-12 rounded-full object-cover border-2 border-red" />
+    <div class="font-logo text-[1.15rem] text-red tracking-[0.04em] leading-[1.1]">
+      Casablanca
+      <span class="block font-logo text-[0.72rem] text-bone tracking-[0.06em] opacity-85">Ramen House</span>
+    </div>
+  </div>
+  <button
+    class="inline-flex items-center gap-2 bg-red text-white border-0 px-[1.1rem] py-2 rounded-md text-[0.85rem] font-semibold tracking-[0.03em] transition-colors duration-200 hover:bg-red-dark"
+    id="open-modal-btn"
+  >
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" class="w-[17px] h-[17px] flex-shrink-0">
+      <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <path d="M16 10a4 4 0 0 1-8 0"></path>
+    </svg>
+    Mi Pedido
+    <span class="bg-white text-red w-5 h-5 rounded-full text-[0.7rem] font-bold flex items-center justify-center" id="cart-count">0</span>
+  </button>
+</header>

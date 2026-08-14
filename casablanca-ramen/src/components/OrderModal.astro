@@ -1,0 +1,41 @@
+---
+---
+<div
+  class="group fixed inset-0 z-[200] bg-black/85 backdrop-blur-sm flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-[250ms] data-[open]:opacity-100 data-[open]:pointer-events-auto"
+  id="modal-overlay"
+>
+  <div class="bg-surface border border-border rounded-2xl p-8 max-w-[480px] w-full max-h-[90vh] overflow-y-auto relative translate-y-3 transition-transform duration-[250ms] group-data-[open]:translate-y-0">
+    <button class="absolute top-4 right-4 bg-transparent border-0 text-muted text-[1.3rem] hover:text-bone" id="modal-close">&times;</button>
+    <h3 class="font-display text-[1.1rem] text-bone mb-5">Confirmar Pedido</h3>
+    <div id="modal-summary" class="bg-card rounded-lg p-4 mb-5"></div>
+    <div class="mb-4">
+      <label class="block text-[0.75rem] text-muted mb-[0.4rem] tracking-[0.05em]" for="field-mesa">Mesa / Número *</label>
+      <input
+        class="w-full px-[0.8rem] py-[0.6rem] rounded-md bg-card border border-border-dim text-bone text-[0.88rem] font-body transition-colors duration-200 focus:outline-none focus:border-red"
+        id="field-mesa" type="text" placeholder="Ej: Mesa 4"
+      />
+    </div>
+    <div class="mb-4">
+      <label class="block text-[0.75rem] text-muted mb-[0.4rem] tracking-[0.05em]" for="field-nombre">Nombre (opcional)</label>
+      <input
+        class="w-full px-[0.8rem] py-[0.6rem] rounded-md bg-card border border-border-dim text-bone text-[0.88rem] font-body transition-colors duration-200 focus:outline-none focus:border-red"
+        id="field-nombre" type="text" placeholder="Tu nombre"
+      />
+    </div>
+    <div class="mb-4">
+      <label class="block text-[0.75rem] text-muted mb-[0.4rem] tracking-[0.05em]" for="field-notas">Notas especiales (opcional)</label>
+      <input
+        class="w-full px-[0.8rem] py-[0.6rem] rounded-md bg-card border border-border-dim text-bone text-[0.88rem] font-body transition-colors duration-200 focus:outline-none focus:border-red"
+        id="field-notas" type="text" placeholder="Sin picante, alergia a mariscos..."
+      />
+    </div>
+    <div class="flex gap-2 mt-4">
+      <button class="flex-1 py-[0.6rem] rounded-[7px] bg-transparent text-muted border border-border-dim text-[0.8rem] transition-all duration-150 hover:text-bone hover:border-white/20" id="modal-cancel">
+        Cancelar
+      </button>
+      <button class="flex-1 py-3 rounded-[7px] bg-red text-white border-0 font-semibold text-[0.9rem] tracking-[0.05em] transition-colors duration-200 hover:bg-red-dark" id="modal-submit">
+        Enviar Pedido
+      </button>
+    </div>
+  </div>
+</div>

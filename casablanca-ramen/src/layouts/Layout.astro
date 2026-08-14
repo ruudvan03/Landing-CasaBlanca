@@ -1,9 +1,12 @@
 ---
+import '../styles/global.css';
+
 interface Props {
   title?: string;
 }
-const { title = "Casablanca Ramen House" } = Astro.props;
+const { title = 'Casablanca Ramen House' } = Astro.props;
 ---
+
 <!doctype html>
 <html lang="es">
   <head>
@@ -14,32 +17,10 @@ const { title = "Casablanca Ramen House" } = Astro.props;
     <link rel="icon" type="image/jpeg" href="/logo.jpg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Inter:wght@300;400;500;600&family=Uncial+Antiqua&family=UnifrakturMaguntia&display=swap" rel="stylesheet" />
-    <style>
-      :root {
-        --black:       #0A0A0A;
-        --surface:     #141414;
-        --card:        #1C1C1C;
-        --card-hover:  #242424;
-        --red:         #CC1A1A;
-        --red-dark:    #8B0000;
-        --red-glow:    rgba(204,26,26,0.25);
-        --bone:        #F0EDE8;
-        --muted:       #888;
-        --border:      rgba(204,26,26,0.3);
-        --border-dim:  rgba(255,255,255,0.08);
-        --font-display: 'Cinzel', serif;
-        --font-logo:    'Uncial Antiqua', 'UnifrakturMaguntia', serif;
-        --font-body:    'Inter', system-ui, sans-serif;
-      }
-      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-      html { background: var(--black); color: var(--bone); font-family: var(--font-body); scroll-behavior: smooth; -webkit-font-smoothing: antialiased; }
-      body { min-height: 100vh; overflow-x: hidden; }
-      ::-webkit-scrollbar { width: 6px; }
-      ::-webkit-scrollbar-track { background: var(--surface); }
-      ::-webkit-scrollbar-thumb { background: var(--red-dark); border-radius: 3px; }
-      button { cursor: pointer; font-family: var(--font-body); }
-    </style>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Inter:wght@300;400;500;600&family=Uncial+Antiqua&family=UnifrakturMaguntia&display=swap"
+      rel="stylesheet"
+    />
   </head>
   <body>
     <slot />

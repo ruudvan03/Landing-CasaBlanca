@@ -1,0 +1,94 @@
+---
+interface Option {
+  id: string;
+  name: string;
+  extra?: number;
+}
+interface Step {
+  id: number;
+  key: string;
+  label: string;
+  subtitle: string;
+  required?: boolean;
+  max?: number;
+  options: Option[];
+}
+interface Props {
+  steps: Step[];
+}
+const { steps } = Astro.props;
+---
+<section class="mb-14 scroll-mt-[130px]" id="sec-ramen">
+  <div class="relative flex items-center gap-4 mb-6 pb-3 border-b border-border-dim before:content-[''] before:absolute before:-bottom-px before:left-0 before:w-10 before:h-px before:bg-red">
+    <span class="text-[0.6rem] font-bold tracking-[0.25em] uppercase text-red bg-red/10 border border-red/20 px-[0.6rem] py-[0.2rem] rounded-[3px] flex-shrink-0">01</span>
+    <h2 class="font-display text-[1.05rem] text-bone tracking-[0.08em]">Arma tu Ramen</h2>
+    <div class="flex-1 h-px bg-border-dim"></div>
+  </div>
+
+  <div class="mb-8 px-5 py-4 bg-card border border-border-dim rounded-lg">
+    <div class="flex justify-between text-[0.72rem] text-muted mb-[0.6rem] tracking-[0.05em]">
+      <span id="progress-text">0 de 4 pasos requeridos</span>
+      <span class="text-red font-bold" id="progress-pct">0%</span>
+    </div>
+    <div class="h-1 bg-white/[0.06] rounded-sm overflow-hidden">
+      <div
+        class="h-full rounded-sm transition-[width] duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] shadow-[0_0_8px_rgba(204,26,26,0.5)] bg-[linear-gradient(90deg,#8b0000,#cc1a1a)]"
+        id="progress-fill"
+        style="width:0%"
+      ></div>
+    </div>
+  </div>
+
+  <div class="flex flex-col gap-0">
+    {
+      steps.map((step) => (
+        <div
+          class="group relative grid gap-x-5 pb-8 [grid-template-columns:56px_1fr] last:before:hidden before:content-[''] before:absolute before:left-[27px] before:top-14 before:bottom-0 before:w-0.5 before:bg-[linear-gradient(to_bottom,rgba(204,26,26,0.3),transparent)]"
+          id={`step-${step.id}`}
+        >
+          <div class="flex flex-col items-center pt-1">
+            <div class="w-12 h-12 rounded-full bg-card border-2 border-border-dim text-muted text-base font-bold font-display flex items-center justify-center flex-shrink-0 relative z-[1] transition-all duration-300 group-data-[state=done]:bg-red group-data-[state=done]:border-red group-data-[state=done]:text-white group-data-[state=done]:shadow-[0_0_20px_rgba(204,26,26,0.4)] group-data-[state=active]:bg-card group-data-[state=active]:border-red group-data-[state=active]:text-red group-data-[state=active]:shadow-[0_0_16px_rgba(204,26,26,0.25)]">
+              {step.id}
+            </div>
+          </div>
+          <div class="min-w-0">
+            <div class="flex items-baseline gap-[0.6rem] py-[0.6rem] pb-[0.9rem]">
+              <span class="font-display text-base font-bold text-muted tracking-[0.06em] transition-colors duration-300 group-data-[state=active]:text-bone group-data-[state=done]:text-bone">
+                {step.label}
+              </span>
+              <span class="text-[0.68rem] text-muted tracking-[0.08em]">{step.subtitle}</span>
+              {step.required && <span class="text-[0.65rem] text-red">*</span>}
+            </div>
+            <div class="flex flex-wrap gap-[0.6rem] pb-2">
+              {step.options.map((opt) => (
+                <button
+                  class="px-5 py-2.5 rounded border border-white/10 bg-card text-muted text-[0.82rem] font-medium cursor-pointer transition-all duration-200 flex items-center gap-2 tracking-[0.03em] relative overflow-hidden hover:border-red/40 hover:text-bone hover:-translate-y-px hover:shadow-[0_4px_12px_rgba(0,0,0,0.3)] data-[selected]:border-red data-[selected]:bg-red/[0.12] data-[selected]:text-bone data-[selected]:shadow-[0_0_0_1px_#CC1A1A,0_4px_16px_rgba(204,26,26,0.2)] before:content-[''] before:absolute before:inset-0 before:opacity-0 before:transition-opacity before:duration-200 before:bg-[linear-gradient(135deg,rgba(204,26,26,0.08),transparent)] hover:before:opacity-100 data-[selected]:before:opacity-100"
+                  data-step={step.key}
+                  data-id={opt.id}
+                  data-name={opt.name}
+                  data-extra={opt.extra || 0}
+                  data-max={step.max || 1}
+                >
+                  {opt.name}
+                  {opt.extra! > 0 && (
+                    <span class="text-[0.7rem] text-red font-semibold opacity-90">+${opt.extra}</span>
+                  )}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      ))
+    }
+  </div>
+
+  <div class="mt-6">
+    <button
+      class="w-full py-3 rounded-md text-white border-0 font-display text-[0.8rem] font-semibold uppercase tracking-[0.1em] p-[0.9rem] transition-all duration-[250ms] shadow-[0_4px_20px_rgba(204,26,26,0.2)] bg-[linear-gradient(135deg,#8b0000,#cc1a1a)] enabled:hover:-translate-y-px enabled:hover:shadow-[0_6px_24px_rgba(204,26,26,0.45)] disabled:bg-card disabled:bg-none disabled:text-muted disabled:border disabled:border-border-dim disabled:shadow-none disabled:cursor-not-allowed"
+      id="add-ramen-btn"
+      disabled
+    >
+      Agregar Ramen al pedido
+    </button>
+  </div>
+</section>
