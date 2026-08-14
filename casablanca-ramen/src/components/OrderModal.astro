@@ -1,39 +1,52 @@
 ---
 ---
 <div
-  class="group fixed inset-0 z-[200] bg-black/85 backdrop-blur-sm flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-[250ms] data-[open]:opacity-100 data-[open]:pointer-events-auto"
+  class="group fixed inset-0 z-[200] bg-black/60 backdrop-blur-md flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-300 data-[open]:opacity-100 data-[open]:pointer-events-auto"
   id="modal-overlay"
 >
-  <div class="bg-surface border border-border rounded-2xl p-8 max-w-[480px] w-full max-h-[90vh] overflow-y-auto relative translate-y-3 transition-transform duration-[250ms] group-data-[open]:translate-y-0">
-    <button class="absolute top-4 right-4 bg-transparent border-0 text-muted text-[1.3rem] hover:text-bone" id="modal-close">&times;</button>
-    <h3 class="font-display text-[1.1rem] text-bone mb-5">Confirmar Pedido</h3>
-    <div id="modal-summary" class="bg-card rounded-lg p-4 mb-5"></div>
-    <div class="mb-4">
-      <label class="block text-[0.75rem] text-muted mb-[0.4rem] tracking-[0.05em]" for="field-mesa">Mesa / Número *</label>
-      <input
-        class="w-full px-[0.8rem] py-[0.6rem] rounded-md bg-card border border-border-dim text-bone text-[0.88rem] font-body transition-colors duration-200 focus:outline-none focus:border-red"
-        id="field-mesa" type="text" placeholder="Ej: Mesa 4"
-      />
+  <!-- Efecto de escala al abrir -->
+  <div class="bg-surface/95 border border-white/10 rounded-2xl p-8 max-w-[480px] w-full max-h-[90vh] overflow-y-auto relative scale-95 opacity-0 transition-all duration-300 ease-out group-data-[open]:scale-100 group-data-[open]:opacity-100 shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
+    
+    <button class="absolute top-5 right-5 w-8 h-8 flex items-center justify-center rounded-full bg-card border border-white/5 text-muted hover:text-white hover:bg-white/10 transition-colors duration-200" id="modal-close">
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+    </button>
+    
+    <h3 class="font-display text-[1.4rem] text-bone mb-6 flex items-center gap-3">
+      <span class="w-2 h-6 bg-red rounded-full shadow-[0_0_8px_rgba(204,26,26,0.6)]"></span>
+      Confirmar Pedido
+    </h3>
+    
+    <div id="modal-summary" class="bg-card/50 border border-white/5 rounded-xl p-5 mb-6 max-h-[30vh] overflow-y-auto"></div>
+    
+    <div class="space-y-4">
+      <div>
+        <label class="block text-[0.75rem] font-semibold text-muted mb-1 tracking-[0.08em] uppercase" for="field-mesa">Mesa / Número <span class="text-red">*</span></label>
+        <input
+          class="w-full px-4 py-3 rounded-lg bg-card/80 border border-border-dim text-bone text-[0.9rem] font-body transition-all duration-200 focus:outline-none focus:border-red focus:ring-2 focus:ring-red/20 focus:bg-card placeholder:text-muted/50"
+          id="field-mesa" type="text" placeholder="Ej: Mesa 4"
+        />
+      </div>
+      <div>
+        <label class="block text-[0.75rem] font-semibold text-muted mb-1 tracking-[0.08em] uppercase" for="field-nombre">Nombre <span class="text-muted/50 font-normal lowercase tracking-normal">(opcional)</span></label>
+        <input
+          class="w-full px-4 py-3 rounded-lg bg-card/80 border border-border-dim text-bone text-[0.9rem] font-body transition-all duration-200 focus:outline-none focus:border-red focus:ring-2 focus:ring-red/20 focus:bg-card placeholder:text-muted/50"
+          id="field-nombre" type="text" placeholder="Tu nombre"
+        />
+      </div>
+      <div>
+        <label class="block text-[0.75rem] font-semibold text-muted mb-1 tracking-[0.08em] uppercase" for="field-notas">Notas <span class="text-muted/50 font-normal lowercase tracking-normal">(opcional)</span></label>
+        <input
+          class="w-full px-4 py-3 rounded-lg bg-card/80 border border-border-dim text-bone text-[0.9rem] font-body transition-all duration-200 focus:outline-none focus:border-red focus:ring-2 focus:ring-red/20 focus:bg-card placeholder:text-muted/50"
+          id="field-notas" type="text" placeholder="Sin picante, alergia a mariscos..."
+        />
+      </div>
     </div>
-    <div class="mb-4">
-      <label class="block text-[0.75rem] text-muted mb-[0.4rem] tracking-[0.05em]" for="field-nombre">Nombre (opcional)</label>
-      <input
-        class="w-full px-[0.8rem] py-[0.6rem] rounded-md bg-card border border-border-dim text-bone text-[0.88rem] font-body transition-colors duration-200 focus:outline-none focus:border-red"
-        id="field-nombre" type="text" placeholder="Tu nombre"
-      />
-    </div>
-    <div class="mb-4">
-      <label class="block text-[0.75rem] text-muted mb-[0.4rem] tracking-[0.05em]" for="field-notas">Notas especiales (opcional)</label>
-      <input
-        class="w-full px-[0.8rem] py-[0.6rem] rounded-md bg-card border border-border-dim text-bone text-[0.88rem] font-body transition-colors duration-200 focus:outline-none focus:border-red"
-        id="field-notas" type="text" placeholder="Sin picante, alergia a mariscos..."
-      />
-    </div>
-    <div class="flex gap-2 mt-4">
-      <button class="flex-1 py-[0.6rem] rounded-[7px] bg-transparent text-muted border border-border-dim text-[0.8rem] transition-all duration-150 hover:text-bone hover:border-white/20" id="modal-cancel">
+    
+    <div class="flex gap-3 mt-8">
+      <button class="flex-1 py-3 rounded-xl bg-transparent text-muted border border-border-dim font-medium text-[0.9rem] transition-all duration-200 hover:text-bone hover:border-white/30 hover:bg-white/5 active:scale-95" id="modal-cancel">
         Cancelar
       </button>
-      <button class="flex-1 py-3 rounded-[7px] bg-red text-white border-0 font-semibold text-[0.9rem] tracking-[0.05em] transition-colors duration-200 hover:bg-red-dark" id="modal-submit">
+      <button class="flex-[2] py-3 rounded-xl bg-gradient-to-r from-[#8b0000] to-[#cc1a1a] text-white border-0 font-bold text-[0.95rem] tracking-[0.05em] shadow-[0_4px_15px_rgba(204,26,26,0.3)] transition-all duration-200 hover:shadow-[0_6px_20px_rgba(204,26,26,0.5)] active:scale-95" id="modal-submit">
         Enviar Pedido
       </button>
     </div>

@@ -12,6 +12,7 @@ export function initApp(ramenPrice) {
   initExtras(state);
   initNav();
   initModal(state);
+  
 
   updateProgress(state);
 }

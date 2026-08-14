@@ -8,13 +8,13 @@ const tabs = [
 ];
 ---
 <nav
-  class="flex gap-0 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden border-b border-border-dim px-6 sticky top-[73px] z-[90] bg-[rgba(10,10,10,0.97)] backdrop-blur-md"
+  class="flex gap-2 overflow-x-auto scroll-smooth [scrollbar-width:none] [&::-webkit-scrollbar]:hidden border-b border-white/5 px-6 sticky top-[72px] z-[90] bg-surface/80 backdrop-blur-xl shadow-sm"
   id="nav-tabs"
 >
   {
     tabs.map((tab, i) => (
       <button
-        class="flex-shrink-0 px-[1.4rem] py-4 bg-transparent border-0 text-muted text-[0.7rem] font-semibold tracking-[0.18em] uppercase cursor-pointer relative -mb-px transition-colors duration-200 hover:text-bone data-[active]:text-bone before:content-[''] before:absolute before:left-1/2 before:-bottom-px before:h-0.5 before:w-0 before:-translate-x-1/2 before:bg-red before:transition-[width] before:duration-200 before:ease-in-out hover:before:w-3/5 data-[active]:before:w-full data-[active]:hover:before:w-full"
+        class="flex-shrink-0 px-4 py-4 bg-transparent border-0 text-muted/70 text-[0.75rem] font-bold tracking-[0.15em] uppercase cursor-pointer relative -mb-px transition-all duration-300 hover:text-bone data-[active]:text-white data-[active]:drop-shadow-[0_0_8px_rgba(255,255,255,0.3)] before:content-[''] before:absolute before:left-1/2 before:-bottom-px before:h-[3px] before:w-0 before:-translate-x-1/2 before:bg-red before:rounded-t-md before:transition-all before:duration-300 before:ease-out hover:before:w-1/2 data-[active]:before:w-full data-[active]:hover:before:w-full data-[active]:before:shadow-[0_-2px_10px_rgba(204,26,26,0.8)]"
         data-section={tab.key}
         {...(i === 0 ? { 'data-active': true } : {})}
       >
