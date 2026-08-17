@@ -11,22 +11,16 @@
   <div id="sidebar-order-content" class="flex-1 overflow-y-auto pr-2 [scrollbar-width:thin]">
     <div class="flex flex-col items-center justify-center h-full text-center opacity-70">
       <div class="w-20 h-20 mb-4 rounded-full bg-card border border-border-dim flex items-center justify-center relative overflow-hidden shadow-[0_0_15px_rgba(204,26,26,0.15)]">
-        <!-- Tazón de ramen SVG con animación de tapa abriendo y cerrando -->
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" class="w-12 h-12 filter drop-shadow-[0_0_6px_rgba(204,26,26,0.4)]">
-          <!-- Tazón -->
           <path d="M15 48 C 15 78, 85 78, 85 48 Z" fill="url(#sidebarBowlGrad)" stroke="#cc1a1a" stroke-width="3"/>
           <ellipse cx="50" cy="48" rx="35" ry="9" fill="#1a1a1a" stroke="#cc1a1a" stroke-width="3"/>
-          <!-- Fideos / Ingredientes -->
           <path d="M30 46 Q 40 39, 50 46 Q 60 39, 70 46" fill="none" stroke="#f4ede2" stroke-width="4" stroke-linecap="round"/>
           <path d="M35 43 Q 42 36, 50 43 Q 58 36, 65 43" fill="none" stroke="#eab308" stroke-width="3" stroke-linecap="round"/>
           <circle cx="50" cy="45" r="6" fill="#f4ede2" stroke="#cc1a1a" stroke-width="1.5"/>
-          
-          <!-- Tapa animada (sube y baja) -->
-          <g class="animate-lid">
+          <g class="animate-lid motion-reduce:animate-none">
             <ellipse cx="50" cy="22" rx="36" ry="7" fill="#2a0808" stroke="#cc1a1a" stroke-width="2.5"/>
             <path d="M44 15 L56 15 L53 10 L47 10 Z" fill="#cc1a1a"/>
           </g>
-
           <defs>
             <linearGradient id="sidebarBowlGrad" x1="0%" y1="0%" x2="0%" y2="100%">
               <stop offset="0%" stop-color="#2a0808" />
@@ -44,7 +38,7 @@
   <div id="sidebar-total" class="hidden mt-4 pt-4 border-t border-white/10 bg-surface">
     <div class="flex justify-between items-end pb-5 font-display">
       <span class="text-muted text-[0.9rem] uppercase tracking-widest">Total Estimado</span>
-      <span class="text-red text-[1.6rem] leading-none drop-shadow-[0_0_10px_rgba(204,26,26,0.3)]" id="sidebar-total-price">$0</span>
+      <span class="text-red text-[1.6rem] leading-none drop-shadow-[0_0_10px_rgba(204,26,26,0.3)] transition-transform duration-200" id="sidebar-total-price">$0</span>
     </div>
     <div class="flex flex-col gap-3">
       <button
@@ -64,18 +58,9 @@
 </aside>
 
 <style>
-  /* Animación de la tapa abriendo y cerrando */
   @keyframes liftLid {
-    0%, 100% {
-      transform: translateY(0) rotate(0deg);
-    }
-    50% {
-      transform: translateY(-8px) rotate(-6deg);
-    }
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-8px) rotate(-6deg); }
   }
-
-  .animate-lid {
-    transform-origin: 20px 22px;
-    animation: liftLid 2.5s ease-in-out infinite;
-  }
+  .animate-lid { transform-origin: 20px 22px; animation: liftLid 2.5s ease-in-out infinite; }
 </style>

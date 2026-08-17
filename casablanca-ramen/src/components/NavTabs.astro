@@ -7,19 +7,21 @@ const tabs = [
   { key: 'postres', label: 'Postres' },
 ];
 ---
-<nav
-  class="flex gap-2 overflow-x-auto scroll-smooth [scrollbar-width:none] [&::-webkit-scrollbar]:hidden border-b border-white/5 px-6 sticky top-[72px] z-[90] bg-surface/80 backdrop-blur-xl shadow-sm"
-  id="nav-tabs"
->
-  {
-    tabs.map((tab, i) => (
-      <button
-        class="flex-shrink-0 px-4 py-4 bg-transparent border-0 text-muted/70 text-[0.75rem] font-bold tracking-[0.15em] uppercase cursor-pointer relative -mb-px transition-all duration-300 hover:text-bone data-[active]:text-white data-[active]:drop-shadow-[0_0_8px_rgba(255,255,255,0.3)] before:content-[''] before:absolute before:left-1/2 before:-bottom-px before:h-[3px] before:w-0 before:-translate-x-1/2 before:bg-red before:rounded-t-md before:transition-all before:duration-300 before:ease-out hover:before:w-1/2 data-[active]:before:w-full data-[active]:hover:before:w-full data-[active]:before:shadow-[0_-2px_10px_rgba(204,26,26,0.8)]"
-        data-section={tab.key}
-        {...(i === 0 ? { 'data-active': true } : {})}
-      >
-        {tab.label}
-      </button>
-    ))
-  }
-</nav>
+<div class="sticky top-[72px] z-[90] bg-surface/80 backdrop-blur-xl shadow-sm relative">
+  <nav
+    class="flex gap-2 overflow-x-auto scroll-smooth [scrollbar-width:none] [&::-webkit-scrollbar]:hidden border-b border-white/5 px-6 [mask-image:linear-gradient(to_right,transparent,black_24px,black_calc(100%-24px),transparent)]"
+    id="nav-tabs"
+  >
+    {
+      tabs.map((tab, i) => (
+        <button
+          class="flex-shrink-0 px-4 py-4 bg-transparent border-0 text-muted/70 text-[0.75rem] font-bold tracking-[0.15em] uppercase cursor-pointer relative -mb-px transition-all duration-300 hover:text-bone data-[active]:text-white data-[active]:drop-shadow-[0_0_8px_rgba(255,255,255,0.3)] before:content-[''] before:absolute before:left-1/2 before:-bottom-px before:h-[3px] before:w-0 before:-translate-x-1/2 before:bg-red before:rounded-t-md before:transition-all before:duration-300 before:ease-out hover:before:w-1/2 data-[active]:before:w-full data-[active]:hover:before:w-full data-[active]:before:shadow-[0_-2px_10px_rgba(204,26,26,0.8)]"
+          data-section={tab.key}
+          {...(i === 0 ? { 'data-active': true } : {})}
+        >
+          {tab.label}
+        </button>
+      ))
+    }
+  </nav>
+</div>
