@@ -242,11 +242,10 @@ function pulseTarget(target) {
   if (!target) return;
   try {
     target.animate([
-      { transform: 'scale(1)' },
-      { transform: 'scale(1.4)', offset: 0.45 },
-      { transform: 'scale(0.95)', offset: 0.7 },
-      { transform: 'scale(1)' }
-    ], { duration: 420, easing: 'cubic-bezier(.34,1.56,.64,1)' });
+      { filter: 'brightness(1)' },
+      { filter: 'brightness(1.35)', offset: 0.5 },
+      { filter: 'brightness(1)' }
+    ], { duration: 420, easing: 'ease-out' });
   } catch (err) { /* noop */ }
 
   const rect = target.getBoundingClientRect();
