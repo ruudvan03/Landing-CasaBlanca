@@ -1,4 +1,13 @@
-import { renderSidebar } from './sidebar.js';
+import { renderSidebar, flyToSidebar } from './sidebar.js';
+
+// Emoji de respaldo para el vuelo, según la categoría del botón
+// (dataset.cat: 'complemento' | 'pasta' | 'bebida' | 'postre').
+const CATEGORY_EMOJI = {
+  complemento: '🥟',
+  pasta: '🍜',
+  bebida: '🥤',
+  postre: '🍨'
+};
 
 export function initExtras(state) {
   // 1. Escuchar clics en los botones de más y menos
@@ -26,6 +35,12 @@ export function initExtras(state) {
       if (action === 'plus') {
         state.extras[id].qty++;
         if (itemNote) state.extras[id].note = itemNote;
+
+        // Vuelo hacia el sidebar al agregar (complemento/bebida/postre/pasta)
+        flyToSidebar(btn, {
+          emoji: CATEGORY_EMOJI[btn.dataset.cat] || '🍽️',
+          particleColor: '#facc15'
+        });
       } else if (state.extras[id].qty > 0) {
         state.extras[id].qty--;
       }
@@ -36,7 +51,7 @@ export function initExtras(state) {
     });
   });
 
-  // 2. NUEVO: Escuchar en tiempo real lo que se escribe en los inputs de notas
+  // 2. Escuchar en tiempo real lo que se escribe en los inputs de notas
   document.querySelectorAll('input[data-note-id]').forEach((input) => {
     input.addEventListener('input', (e) => {
       const id = e.target.dataset.noteId;

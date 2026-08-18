@@ -1,6 +1,6 @@
 import { showToast } from './state.js';
 import { updateProgress } from './progress.js';
-import { renderSidebar } from './sidebar.js';
+import { renderSidebar, flyToSidebar } from './sidebar.js';
 
 export function initBuilder(state, ramenPrice) {
   document.querySelectorAll('[data-step]').forEach((btn) => {
@@ -34,7 +34,8 @@ export function initBuilder(state, ramenPrice) {
     });
   });
 
-  document.getElementById('add-ramen-btn').addEventListener('click', () => {
+  const addRamenBtn = document.getElementById('add-ramen-btn');
+  addRamenBtn.addEventListener('click', () => {
     const r = state.ramen;
     const extrasTotal = r.extras.reduce((s, x) => s + x.extra, 0);
     state.ramenItems.push({
@@ -49,6 +50,10 @@ export function initBuilder(state, ramenPrice) {
     document.querySelectorAll('[data-step]').forEach((b) => b.removeAttribute('data-selected'));
     updateProgress(state);
     renderSidebar(state);
+
+    // Vuelo hacia el sidebar al confirmar la construcción del ramen
+    flyToSidebar(addRamenBtn, { emoji: '🍜', particleColor: '#cc1a1a' });
+
     showToast('Ramen agregado al pedido');
   });
 }

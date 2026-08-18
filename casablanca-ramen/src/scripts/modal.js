@@ -89,10 +89,19 @@ export function initModal(state) {
         const verduras = getNames(r.verduras);
         const proteina = getNames(r.proteina);
         const caldo = getNames(r.caldo);
-        const extrasRamen = getNames(r.extras); 
+        
+        // Mapear los extras individualmente para incluir su precio leyendo 'e.extra'
+        let extrasRamenTexto = '';
+        if (r.extras && r.extras.map) {
+            extrasRamenTexto = r.extras.map(e => {
+                const nombreExtra = e.name || '';
+                const precioExtra = Number(e.extra || e.price || e.precio || 0);
+                return precioExtra > 0 ? `${nombreExtra} (+$${precioExtra})` : nombreExtra;
+            }).join(', ');
+        }
         
         let detalles = `Fideo: ${fideos} | Proteína: ${proteina} | Verduras: ${verduras} | Caldo: ${caldo}`;
-        if (extrasRamen) detalles += ` | Extras: ${extrasRamen}`;
+        if (extrasRamenTexto) detalles += ` | Extras: ${extrasRamenTexto}`;
         
         // La nota general del modal SÍ se aplica al ramen principal
         if (notasGenerales) {
@@ -112,13 +121,10 @@ export function initModal(state) {
     // 2. Mapear Complementos / Pastas / Bebidas / Postres (state.extras)
     if (state.extras) {
       Object.values(state.extras).filter(e => e && e.qty > 0).forEach(e => {
-        // AQUÍ ESTÁ EL CAMBIO: Tomamos la nota específica que escribió el usuario en el input del producto
         let notasComplemento = e.note ? `Nota: ${e.note}` : ''; 
         
-        // Forzamos la obtención del ID correcto de forma segura
         let productoIdValido = Number(e.id);
         
-        // Si por alguna razón el ID sigue siendo NaN, rescatamos el número según el nombre
         if (isNaN(productoIdValido)) {
             const nombreExtra = (e.name || '').toLowerCase();
             if (nombreExtra.includes('gyoza')) productoIdValido = 5;
@@ -147,7 +153,7 @@ export function initModal(state) {
           product_id: productoIdValido, 
           quantity: Number(e.qty),
           price: Number(e.price),
-          notes: notasComplemento // Ahora enviará la nota específica del input si existe
+          notes: notasComplemento
         });
         totalPedido += (Number(e.price) * Number(e.qty));
       });
