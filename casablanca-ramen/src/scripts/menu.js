@@ -81,32 +81,32 @@ export const steps = [
 ];
 
 export const complementos = [
-  { id: "gyozas", name: "Gyozas 6 pz", price: 135 },
-  { id: "dumplings", name: "Dumplings 4 pz", price: 120 },
-  { id: "yakimeshi", name: "Yakimeshi", price: 110 },
-  { id: "camarones-crunchy", name: "Camarones Crunchy", price: 135 },
-  { id: "kushiague", name: "Kushiague 5 pz", price: 140 },
-  { id: "rollos-primavera", name: "Rollos Primavera 4 pz", price: 95 },
+  { id: 5, name: "Gyozas 6 Pz", price: 125 },
+  { id: 6, name: "Dumplings 4 Pz", price: 120 },
+  { id: 7, name: "Yakimeshi", price: 110 },
+  { id: 8, name: "Camarones Crunchy", price: 135 },
+  { id: 9, name: "Kushiages 3 Pz", price: 140 },
+  { id: 10, name: "Rollos Primavera 4 Pz", price: 95 },
 ];
 
 export const pastas = [
-  { id: "pad-thai", name: "Pad Thai", price: 175 },
-  { id: "patsiu", name: "Patsiu", price: 175 },
-  { id: "camaron-pasta", name: "Camarón", price: 175 },
+  { id: 11, name: "Pad Thai", price: 175 },
+  { id: 12, name: "Patsiu", price: 175 },
+  { id: 13, name: "Camarón extra", price: 75 },
 ];
 
 export const bebidas = [
-  { id: "refrescos", name: "Refrescos", price: 45 },
-  { id: "te-jazmin", name: "Té de Jazmín", price: 40 },
-  { id: "agua-limon-chia", name: "Agua de Limón con Chía", price: 40 },
-  { id: "frutos-rojos", name: "Frutos Rojos", price: 45 },
-  { id: "ramune", name: "Ramune", price: 90 },
-  { id: "corona-victoria", name: "Corona / Victoria", price: 50 },
-  { id: "lucky-buda", name: "Lucky Buda", price: 119 },
+  { id: 14, name: "Refrescos", price: 45 },
+  { id: 15, name: "Té de Jazmín", price: 40 },
+  { id: 16, name: "Agua de limón con chía", price: 40 },
+  { id: 17, name: "Frutos rojos", price: 45 },
+  { id: 18, name: "Ramune", price: 80 },
+  { id: 19, name: "Corona / Victoria", price: 50 },
+  { id: 20, name: "Lucky Buda", price: 119 },
 ];
 
 export const postres = [
-  { id: "tempura-helado", name: "Témpura Helado", price: 75, note: "Cajeta o Jarabe Hershey's" },
-  { id: "kabi-kari", name: "Kabi Kari", price: 75, note: "Cajeta o Jarabe Hershey's" },
-  { id: "pocky", name: "Pocky", price: 70 },
+  { id: 21, name: "Tempura Helado", price: 75, note: "Sujeto a jarabe Hershey's" },
+  { id: 22, name: "Kari Kari", price: 75, note: "Sujeto a jarabe Hershey's" },
+  { id: 23, name: "Pocky", price: 70 },
 ];
