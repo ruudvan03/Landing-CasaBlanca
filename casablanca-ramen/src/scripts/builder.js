@@ -1,6 +1,7 @@
 import { showToast } from './state.js';
 import { updateProgress } from './progress.js';
-import { renderSidebar, flyToSidebar } from './sidebar.js';
+import { renderSidebar } from './sidebar.js';
+import { flyToSidebar } from './flyToSidebar.js';
 
 export function initBuilder(state, ramenPrice) {
   document.querySelectorAll('[data-step]').forEach((btn) => {

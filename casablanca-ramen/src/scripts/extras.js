@@ -1,4 +1,5 @@
-import { renderSidebar, flyToSidebar } from './sidebar.js';
+import { renderSidebar } from './sidebar.js';
+import { flyToSidebar } from './flyToSidebar.js';
 
 // Emoji de respaldo para el vuelo, según la categoría del botón
 // (dataset.cat: 'complemento' | 'pasta' | 'bebida' | 'postre').
