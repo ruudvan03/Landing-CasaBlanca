@@ -1,5 +1,5 @@
 import { fmt } from './state.js';
-import { playExitAndThen, activateFreshAnimations } from './animations.js';
+import { playExitAndThen, activateFreshAnimations } from './Animations.js';
 import {
   getBowlDesign,
   getFideoStyle,
@@ -9,39 +9,25 @@ import {
   renderDynamicBowl,
   renderMiniBowlSvg,
   resetBuildState
-} from './bowlDesign.js';
+} from './Bowldesign.js';
 
 /* ================================================================
-   SIDEBAR — ORQUESTADOR PRINCIPAL
-   Punto de entrada del carrito (renderSidebar / confirmOrderReset).
-
-   Este archivo solo se encarga de:
-   - construir/mantener el "skeleton" del DOM del sidebar,
-   - reconciliar listas (ramen / extras) contra el estado actual,
-     conservando nodos existentes (claves estables) para que el
-     motor de animaciones (animations.js) solo anime lo que cambió,
-   - delegar el dibujo de tazones e íconos a bowlDesign.js.
-
-   El efecto de "vuelo" del menú al sidebar vive aparte, en
-   flyToSidebar.js, y se invoca directamente desde extras.js y
-   builder.js (no desde aquí).
-================================================================ */
-
-/* ================================================================
-   RECONCILIADOR CON CLAVES
-   - Cada ramen / extra conserva su nodo DOM entre renders.
-   - Solo lo nuevo entra animado; lo existente se actualiza en el
-     lugar (precio, chips, índice); solo lo eliminado sale animado.
+   SIDEBAR & MOBILE DRAWER — ORQUESTADOR PRINCIPAL
 ================================================================ */
 
 let _skeleton = null;
 const _ramenNodeMap = new Map();   // uid -> <div class="ramen-card">
-const _extraNodeMap = new Map();   // key (nombre en state.extras) -> <div class="extra-row">
+const _extraNodeMap = new Map();   // key -> <div class="extra-row">
 const _ramenUidMap = new WeakMap();
 let _ramenUidSeq = 0;
 
 let _latestState = null;
 let _latestUpdateCallback = null;
+let _onRamenEdit = null;
+
+export function setOnRamenEdit(callback) {
+  _onRamenEdit = callback;
+}
 
 function getRamenUid(ramenObj) {
   if (!_ramenUidMap.has(ramenObj)) {
@@ -50,24 +36,131 @@ function getRamenUid(ramenObj) {
   return _ramenUidMap.get(ramenObj);
 }
 
+/* ================================================================
+   HELPER ANIMACIONES RESPONSIVE
+================================================================ */
+
+function safeExitAnimation(el, kind, cb) {
+  if (window.innerWidth < 768) {
+    cb();
+  } else {
+    playExitAndThen(el, kind, cb);
+  }
+}
+
+/* ================================================================
+   SINCRONIZACIÓN VISUAL DEL BUILDER CON EL RAMEN EN EDICIÓN
+================================================================ */
+
+function syncBuilderUI(ramen) {
+  if (!ramen) return;
+
+  const activeIds = new Set([
+    ...(ramen.caldo || []).map(i => String(i.id)),
+    ...(ramen.fideo || []).map(i => String(i.id)),
+    ...(ramen.proteina || []).map(i => String(i.id)),
+    ...(ramen.verduras || []).map(i => String(i.id)),
+    ...(ramen.extras || []).map(i => String(i.id))
+  ]);
+
+  document.querySelectorAll('[data-ingredient-id], [data-item-id], [data-id], [data-option-id]').forEach(btn => {
+    const id = btn.dataset.ingredientId || btn.dataset.itemId || btn.dataset.id || btn.dataset.optionId;
+    if (!id) return;
+
+    if (activeIds.has(String(id))) {
+      btn.classList.add('active', 'is-selected', 'ring-2', 'ring-red', 'bg-red/10', 'border-red');
+      btn.setAttribute('aria-selected', 'true');
+    } else {
+      btn.classList.remove('active', 'is-selected', 'ring-2', 'ring-red', 'bg-red/10', 'border-red');
+      btn.setAttribute('aria-selected', 'false');
+    }
+  });
+}
+
+/* ================================================================
+   CONTROL DEL CAJÓN MÓVIL (BOTTOM SHEET)
+================================================================ */
+
+function setupMobileDrawerEvents() {
+  const openBtn = document.getElementById('open-mobile-cart-btn');
+  const closeBtn = document.getElementById('close-mobile-cart-btn');
+  const backdrop = document.getElementById('sidebar-backdrop');
+  const container = document.getElementById('sidebar-container');
+
+  if (!openBtn || !backdrop || !container) return;
+
+  const openDrawer = () => {
+    container.classList.remove('translate-y-full', 'pointer-events-none');
+    container.classList.add('pointer-events-auto');
+
+    backdrop.classList.remove('opacity-0', 'pointer-events-none');
+    backdrop.classList.add('opacity-100', 'pointer-events-auto');
+
+    document.body.style.overflow = 'hidden';
+  };
+
+  const closeDrawer = () => {
+    container.classList.remove('pointer-events-auto');
+    container.classList.add('translate-y-full', 'pointer-events-none');
+
+    backdrop.classList.remove('opacity-100', 'pointer-events-auto');
+    backdrop.classList.add('opacity-0', 'pointer-events-none');
+
+    document.body.style.overflow = '';
+  };
+
+  if (!openBtn.__hasListener) {
+    openBtn.addEventListener('click', openDrawer);
+    openBtn.__hasListener = true;
+  }
+  if (closeBtn && !closeBtn.__hasListener) {
+    closeBtn.addEventListener('click', closeDrawer);
+    closeBtn.__hasListener = true;
+  }
+  if (!backdrop.__hasListener) {
+    backdrop.addEventListener('click', closeDrawer);
+    backdrop.__hasListener = true;
+  }
+
+  window.closeMobileCartDrawer = closeDrawer;
+}
+
+/* ================================================================
+   RECONCILIACIÓN Y HTML
+================================================================ */
+
 function renderRamenCardHTML(r, ramenIndex) {
   const design = getBowlDesign(r);
   const fideoStyle = getFideoStyle(r.fideo);
   const uid = getRamenUid(r);
 
   return `
-    <div class="ramen-card flex flex-col gap-2 p-3 mb-3 rounded-xl bg-card/60 border border-border-dim transition-all hover:border-red/40 shadow-sm relative group" data-uid="${uid}" data-fresh="1" data-anim-kind="generic" data-anim-delay="0">
+    <div class="ramen-card flex flex-col gap-2 p-3 mb-2.5 rounded-xl bg-card/60 border border-border-dim transition-all hover:border-red/40 shadow-sm relative group" data-uid="${uid}" data-fresh="1" data-anim-kind="generic" data-anim-delay="0">
       <div class="flex items-start gap-3">
-        <div class="w-12 h-12 flex-shrink-0 rounded-xl bg-card border border-red/30 flex items-center justify-center relative overflow-hidden shadow-[0_0_12px_rgba(204,26,26,0.25)] mini-bowl">
+        <!-- Oculto el diseño gráfico del bowl en móviles (hidden md:flex) -->
+        <div class="w-12 h-12 flex-shrink-0 rounded-xl bg-card border border-red/30 hidden md:flex items-center justify-center relative overflow-hidden shadow-[0_0_12px_rgba(204,26,26,0.25)] mini-bowl">
           ${renderMiniBowlSvg(r, design, fideoStyle)}
         </div>
         <div class="flex-1 min-w-0">
           <div class="flex justify-between items-center mb-1">
             <span class="font-display font-bold text-bone tracking-wide text-[0.88rem] ramen-title">Ramen ${ramenIndex + 1}</span>
-            <div class="flex items-center gap-1">
-              <span class="text-red font-semibold whitespace-nowrap ramen-price">${fmt(r.total)}</span>
-              <button type="button" class="edit-ramen text-muted hover:text-amber-400 transition-colors text-xs px-1" data-ramen-index="${ramenIndex}" title="Editar este ramen">✏️</button>
-              <button type="button" class="remove-ramen text-muted hover:text-red transition-colors text-xs px-1" data-ramen-index="${ramenIndex}" title="Eliminar ramen completo">🗑️</button>
+            <div class="flex items-center gap-1.5">
+              <span class="text-red font-semibold whitespace-nowrap ramen-price mr-0.5 text-sm">${fmt(r.total)}</span>
+              <button type="button" class="edit-ramen w-7 h-7 rounded-full bg-card border border-border-dim flex items-center justify-center text-muted transition-all duration-200 hover:border-amber-400/60 hover:text-amber-400 hover:bg-amber-400/10 active:scale-90 cursor-pointer" data-ramen-index="${ramenIndex}" title="Editar este ramen" aria-label="Editar este ramen">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-3.5 h-3.5 pointer-events-none">
+                  <path d="M12 20h9"/>
+                  <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"/>
+                </svg>
+              </button>
+              <button type="button" class="remove-ramen w-7 h-7 rounded-full bg-card border border-border-dim flex items-center justify-center text-muted transition-all duration-200 hover:border-red/60 hover:text-red hover:bg-red/10 active:scale-90 cursor-pointer" data-ramen-index="${ramenIndex}" title="Eliminar ramen completo" aria-label="Eliminar ramen completo">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-3.5 h-3.5 pointer-events-none">
+                  <path d="M3 6h18"/>
+                  <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                  <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+                  <line x1="10" y1="11" x2="10" y2="17"/>
+                  <line x1="14" y1="11" x2="14" y2="17"/>
+                </svg>
+              </button>
             </div>
           </div>
         </div>
@@ -82,7 +175,8 @@ function reconcileChips(chipsEl, ramenItem, ramenIndex) {
     ...(ramenItem.caldo || []).map(item => ({ ...item, cat: 'caldo' })),
     ...(ramenItem.fideo || []).map(item => ({ ...item, cat: 'fideo' })),
     ...(ramenItem.proteina || []).map(item => ({ ...item, cat: 'proteina' })),
-    ...(ramenItem.verduras || []).map(item => ({ ...item, cat: 'verduras' }))
+    ...(ramenItem.verduras || []).map(item => ({ ...item, cat: 'verduras' })),
+    ...(ramenItem.extras || []).map(item => ({ ...item, cat: 'extras' }))
   ];
 
   if (allIngredients.length === 0) {
@@ -107,7 +201,7 @@ function reconcileChips(chipsEl, ramenItem, ramenIndex) {
       wrapper.innerHTML = `
         <span class="ingredient-chip inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-card border border-border-dim text-[0.7rem] text-bone" data-chip-key="${key}" data-fresh="1" data-anim-kind="generic" data-anim-delay="${idx * 40}">
           ${item.name}
-          <button type="button" class="remove-ingredient text-muted hover:text-red transition-colors ml-0.5 text-xs font-bold" data-ramen-index="${ramenIndex}" data-category="${item.cat}" data-item-id="${item.id}">×</button>
+          <button type="button" class="remove-ingredient text-muted hover:text-red transition-colors ml-0.5 text-xs font-bold cursor-pointer" data-ramen-index="${ramenIndex}" data-category="${item.cat}" data-item-id="${item.id}">×</button>
         </span>
       `.trim();
       chip = wrapper.firstElementChild;
@@ -141,7 +235,7 @@ function updateRamenCard(cardEl, r, ramenIndex) {
   if (removeBtn) removeBtn.dataset.ramenIndex = ramenIndex;
 
   const miniBowl = cardEl.querySelector('.mini-bowl');
-  if (miniBowl) {
+  if (miniBowl && window.innerWidth >= 768) {
     const design = getBowlDesign(r);
     const fideoStyle = getFideoStyle(r.fideo);
     miniBowl.innerHTML = renderMiniBowlSvg(r, design, fideoStyle);
@@ -177,7 +271,7 @@ function reconcileRamenList(listEl, ramenItems) {
   Array.from(_ramenNodeMap.entries()).forEach(([uid, el]) => {
     if (!seenUids.has(uid)) {
       _ramenNodeMap.delete(uid);
-      playExitAndThen(el, 'card', () => el.remove());
+      safeExitAnimation(el, 'card', () => el.remove());
     }
   });
 }
@@ -237,7 +331,7 @@ function reconcileExtrasList(listEl, extras) {
   Array.from(_extraNodeMap.entries()).forEach(([key, el]) => {
     if (!seenKeys.has(key)) {
       _extraNodeMap.delete(key);
-      playExitAndThen(el, 'row', () => el.remove());
+      safeExitAnimation(el, 'row', () => el.remove());
     }
   });
 }
@@ -248,15 +342,16 @@ function ensureSkeleton(content) {
   }
 
   content.innerHTML = `
-    <div id="sb-ramen-section" class="mb-4" hidden>
+    <div id="sb-ramen-section" class="mb-3" hidden>
       <div class="text-[0.65rem] uppercase tracking-[0.15em] text-muted mb-[0.4rem]">Ramen</div>
       <div id="sb-ramen-list" class="flex flex-col gap-[0.3rem]"></div>
     </div>
-    <div id="sb-extras-section" class="mb-4" hidden>
+    <div id="sb-extras-section" class="mb-3" hidden>
       <div class="text-[0.65rem] uppercase tracking-[0.15em] text-muted mb-[0.4rem]">Complementos, Pastas y Extras</div>
       <div id="sb-extras-list" class="flex flex-col gap-[0.3rem]"></div>
     </div>
-    <div id="sb-build-section" class="mb-4 bg-card/40 border border-border-dim rounded-xl p-4" hidden>
+    <!-- Previsualización del ramen en construcción oculta en móvil (hidden md:block) -->
+    <div id="sb-build-section" class="mb-3 bg-card/40 border border-border-dim rounded-xl p-3 hidden md:block" hidden>
       <div class="text-[0.7rem] uppercase tracking-[0.15em] text-red mb-2 font-bold flex justify-between items-center">
         <span>En construcción…</span>
       </div>
@@ -264,9 +359,9 @@ function ensureSkeleton(content) {
       <div class="text-[0.75rem] text-muted text-center mt-1">Completa los pasos y presiona "Agregar"</div>
     </div>
     <div id="sb-empty-state" hidden>
-      <div class="flex flex-col items-center justify-center h-full text-center opacity-70">
-        <div class="w-24 h-24 mb-4 rounded-full bg-card border border-border-dim flex items-center justify-center relative overflow-hidden shadow-[0_0_15px_rgba(204,26,26,0.15)]">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" class="w-14 h-14 filter drop-shadow-[0_0_6px_rgba(204,26,26,0.4)]">
+      <div class="flex flex-col items-center justify-center h-full text-center opacity-70 py-6">
+        <div class="w-20 h-20 mb-4 rounded-2xl bg-card border border-border-dim flex items-center justify-center relative overflow-hidden shadow-[0_0_15px_rgba(204,26,26,0.15)]">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" class="w-12 h-12 filter drop-shadow-[0_0_6px_rgba(204,26,26,0.4)]">
             <path d="M15 48 C 15 78, 85 78, 85 48 Z" fill="url(#sidebarBowlGrad)" stroke="#cc1a1a" stroke-width="3"/>
             <ellipse cx="50" cy="48" rx="35" ry="9" fill="#1a1a1a" stroke="#cc1a1a" stroke-width="3"/>
             <path d="M30 46 Q 40 39, 50 46 Q 60 39, 70 46" fill="none" stroke="#f4ede2" stroke-width="4" stroke-linecap="round"/>
@@ -284,7 +379,7 @@ function ensureSkeleton(content) {
             </defs>
           </svg>
         </div>
-        <p class="text-muted text-[0.85rem] leading-relaxed">
+        <p class="text-muted text-[0.85rem] leading-relaxed max-w-[200px]">
           Tu pedido está vacío.<br />Selecciona tus favoritos para comenzar.
         </p>
       </div>
@@ -330,17 +425,18 @@ function bindDelegatedEvents(content) {
       const itemId = removeIngBtn.dataset.itemId;
       const chipEl = removeIngBtn.closest('.ingredient-chip');
 
-      playExitAndThen(chipEl, 'chip', () => {
+      safeExitAnimation(chipEl, 'chip', () => {
         if (chipEl) chipEl.remove();
         const ramenItem = state.ramenItems[rIndex];
         if (ramenItem && ramenItem[category]) {
           ramenItem[category] = ramenItem[category].filter(i => String(i.id) !== String(itemId));
           let newTotal = 0;
-          ['caldo', 'fideo', 'proteina', 'verduras'].forEach(cat => {
+          ['caldo', 'fideo', 'proteina', 'verduras', 'extras'].forEach(cat => {
             if (ramenItem[cat]) ramenItem[cat].forEach(i => { newTotal += (i.price || 0); });
           });
           ramenItem.total = newTotal;
           triggerUpdate();
+          syncBuilderUI(state.ramen);
         }
       });
       return;
@@ -351,19 +447,35 @@ function bindDelegatedEvents(content) {
       const rIndex = parseInt(editBtn.dataset.ramenIndex, 10);
       const cardEl = editBtn.closest('.ramen-card');
 
-      playExitAndThen(cardEl, 'card', () => {
+      safeExitAnimation(cardEl, 'card', () => {
         const ramenToEdit = state.ramenItems[rIndex];
         if (ramenToEdit) {
           _ramenNodeMap.delete(getRamenUid(ramenToEdit));
           if (cardEl) cardEl.remove();
+
           state.ramen = {
             caldo: [...(ramenToEdit.caldo || [])],
             fideo: [...(ramenToEdit.fideo || [])],
             proteina: [...(ramenToEdit.proteina || [])],
-            verduras: [...(ramenToEdit.verduras || [])]
+            verduras: [...(ramenToEdit.verduras || [])],
+            extras: [...(ramenToEdit.extras || [])]
           };
+
           state.ramenItems.splice(rIndex, 1);
           triggerUpdate();
+
+          syncBuilderUI(state.ramen);
+
+          if (typeof _onRamenEdit === 'function') _onRamenEdit(state);
+
+          if (typeof window.closeMobileCartDrawer === 'function') {
+            window.closeMobileCartDrawer();
+          }
+
+          const builderEl = document.getElementById('builder') || document.querySelector('[data-builder]');
+          if (builderEl) {
+            builderEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
         }
       });
       return;
@@ -374,7 +486,7 @@ function bindDelegatedEvents(content) {
       const rIndex = parseInt(removeBtn.dataset.ramenIndex, 10);
       const cardEl = removeBtn.closest('.ramen-card');
 
-      playExitAndThen(cardEl, 'card', () => {
+      safeExitAnimation(cardEl, 'card', () => {
         const ramenObj = state.ramenItems[rIndex];
         if (ramenObj) _ramenNodeMap.delete(getRamenUid(ramenObj));
         if (cardEl) cardEl.remove();
@@ -390,8 +502,11 @@ export function renderSidebar(state, updateCallback) {
   _latestState = state;
   _latestUpdateCallback = updateCallback;
 
+  setupMobileDrawerEvents();
+
   const content = document.getElementById('sidebar-order-content');
   const totalBox = document.getElementById('sidebar-total');
+  const mobileBar = document.getElementById('mobile-cart-bar');
   if (!content) return;
 
   const skeleton = ensureSkeleton(content);
@@ -419,11 +534,13 @@ export function renderSidebar(state, updateCallback) {
   }
 
   const inProgress = ['fideo', 'verduras', 'proteina', 'caldo'].some(
-    (k) => state.ramen[k].length > 0
+    (k) => state.ramen[k] && state.ramen[k].length > 0
   );
 
   if (inProgress) {
-    skeleton.buildBowl.innerHTML = renderDynamicBowl(state.ramen);
+    if (window.innerWidth >= 768) {
+      skeleton.buildBowl.innerHTML = renderDynamicBowl(state.ramen);
+    }
     skeleton.buildSection.hidden = false;
   } else {
     skeleton.buildSection.hidden = true;
@@ -443,7 +560,22 @@ export function renderSidebar(state, updateCallback) {
     }
   }
 
-  activateFreshAnimations(content);
+  if (mobileBar) {
+    if (isEmpty) {
+      mobileBar.classList.add('translate-y-24', 'opacity-0', 'pointer-events-none');
+      mobileBar.classList.remove('translate-y-0', 'opacity-100', 'pointer-events-auto');
+    } else {
+      mobileBar.classList.remove('translate-y-24', 'opacity-0', 'pointer-events-none');
+      mobileBar.classList.add('translate-y-0', 'opacity-100', 'pointer-events-auto');
+    }
+  }
+
+  // Desactivar las animaciones de entrada en móvil
+  if (window.innerWidth >= 768) {
+    activateFreshAnimations(content);
+  } else {
+    content.querySelectorAll('[data-fresh]').forEach(el => el.removeAttribute('data-fresh'));
+  }
 
   const mobileItemCount = document.getElementById('mobile-item-count');
   if (mobileItemCount) mobileItemCount.textContent = itemCount + (itemCount === 1 ? ' item' : ' items');
@@ -474,7 +606,11 @@ export function confirmOrderReset(state, updateCallback) {
   resetBuildState();
   _skeleton = null;
 
-  if (content) {
+  if (typeof window.closeMobileCartDrawer === 'function') {
+    window.closeMobileCartDrawer();
+  }
+
+  if (content && window.innerWidth >= 768) {
     try {
       content.animate(
         [{ opacity: 1 }, { opacity: 0.25 }],

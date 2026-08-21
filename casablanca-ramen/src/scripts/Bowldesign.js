@@ -1,4 +1,4 @@
-import { normalize, keyOf } from './utils.js';
+import { normalize, keyOf } from './Utils.js';
 
 /* ================================================================
    DISEÑO: TAZÓN, INGREDIENTES E ÍCONOS (SVG)
@@ -94,89 +94,86 @@ export function getFideoStyle(fideoArray) {
 // Generador de gráficos SVG específicos para Proteínas según su tipo
 export function getProteinaSvg(proteinaArray, animCfg = null) {
   if (!proteinaArray || proteinaArray.length === 0) return '';
-  const pName = normalize(proteinaArray[0].name);
-  const attrs = animCfg && animCfg.fresh
-    ? `data-fresh="1" data-anim-kind="proteina" data-anim-delay="${animCfg.delay || 0}"`
-    : '';
 
-  if (pName.includes('huevo duro')) {
-    return `
-      <g ${attrs}>
+  return proteinaArray.map((p, pIdx) => {
+    const pName = normalize(p.name);
+    const attrs = animCfg && animCfg.fresh
+      ? `data-fresh="1" data-anim-kind="proteina" data-anim-delay="${(animCfg.delay || 0) + (pIdx * 90)}"`
+      : '';
+
+    // Si hay más de una proteína, desplazamos cada una para que no se empalmen
+    let transform = '';
+    if (proteinaArray.length > 1) {
+      if (pIdx === 0) transform = 'transform="translate(-6, -3)"';
+      else if (pIdx === 1) transform = 'transform="translate(6, 4)"';
+      else transform = `transform="translate(${(pIdx - 1) * 8}, ${pIdx * 3})"`;
+    }
+
+    let content = '';
+    if (pName.includes('huevo duro')) {
+      content = `
         <ellipse cx="34" cy="46" rx="7" ry="9" fill="#fef3c7" stroke="#d97706" stroke-width="1.5"/>
         <circle cx="34" cy="46" r="3" fill="#facc15"/>
         <ellipse cx="63" cy="47" rx="7" ry="9" fill="#fef3c7" stroke="#d97706" stroke-width="1.5"/>
         <circle cx="63" cy="47" r="3" fill="#facc15"/>
-      </g>
-    `;
-  } else if (pName.includes('pollito') || pName.includes('pollo')) {
-    return `
-      <g ${attrs}>
+      `;
+    } else if (pName.includes('pollito') || pName.includes('pollo')) {
+      content = `
         <rect x="28" y="43" width="10" height="9" rx="2" fill="#d97706" stroke="#92400e" stroke-width="1.5"/>
         <rect x="58" y="44" width="11" height="8" rx="2" fill="#d97706" stroke="#92400e" stroke-width="1.5"/>
         <circle cx="31" cy="46" r="0.8" fill="#fef3c7"/>
         <circle cx="62" cy="47" r="0.8" fill="#fef3c7"/>
-      </g>
-    `;
-  } else if (pName.includes('tocino')) {
-    return `
-      <g ${attrs}>
+      `;
+    } else if (pName.includes('tocino')) {
+      content = `
         <path d="M 26 44 Q 32 40, 38 44 Q 44 48, 50 44" fill="none" stroke="#dc2626" stroke-width="3.5" stroke-linecap="round"/>
         <path d="M 26 48 Q 32 44, 38 48 Q 44 52, 50 48" fill="none" stroke="#fca5a5" stroke-width="2" stroke-linecap="round"/>
         <path d="M 52 46 Q 58 42, 64 46 Q 70 50, 76 46" fill="none" stroke="#dc2626" stroke-width="3.5" stroke-linecap="round"/>
-      </g>
-    `;
-  } else if (pName.includes('costillita') || pName.includes('costilla')) {
-    return `
-      <g ${attrs}>
+      `;
+    } else if (pName.includes('costillita') || pName.includes('costilla')) {
+      content = `
         <path d="M 28 42 Q 26 48, 30 53" fill="none" stroke="#92400e" stroke-width="3" stroke-linecap="round"/>
         <path d="M 34 41 Q 32 48, 36 54" fill="none" stroke="#92400e" stroke-width="3" stroke-linecap="round"/>
-        <path d="M 40 42 Q 38 48, 42 53" fill="none" stroke="#92400e" stroke-width="3" stroke-linecap="round"/>
-        <ellipse cx="35" cy="44" rx="10" ry="4" fill="#b45309" opacity="0.5"/>
-      </g>
-    `;
-  } else if (pName.includes('camaron') || pName.includes('shrimp') || pName.includes('marisco')) {
-    return `
-      <g ${attrs}>
+        <ellipse cx="32" cy="44" rx="8" ry="4" fill="#b45309" opacity="0.5"/>
+        <path d="M 58 43 Q 56 49, 60 54" fill="none" stroke="#92400e" stroke-width="3" stroke-linecap="round"/>
+        <ellipse cx="59" cy="45" rx="6" ry="3.5" fill="#b45309" opacity="0.5"/>
+      `;
+    } else if (pName.includes('camaron') || pName.includes('shrimp') || pName.includes('marisco')) {
+      content = `
         <path d="M 30 45 Q 35 38, 42 42 Q 45 46, 38 49 Z" fill="#fb923c" stroke="#c2410c" stroke-width="1.5"/>
         <path d="M 54 46 Q 59 39, 66 43 Q 69 47, 62 50 Z" fill="#fb923c" stroke="#c2410c" stroke-width="1.5"/>
         <path d="M 33 43 Q 36 44, 38 47" fill="none" stroke="#c2410c" stroke-width="0.8" opacity="0.6"/>
         <path d="M 58 44 Q 61 45, 63 48" fill="none" stroke="#c2410c" stroke-width="0.8" opacity="0.6"/>
-      </g>
-    `;
-  } else if (pName.includes('tofu')) {
-    return `
-      <g ${attrs}>
+      `;
+    } else if (pName.includes('tofu')) {
+      content = `
         <rect x="27" y="41" width="12" height="12" rx="1.5" fill="#fefce8" stroke="#d4d4d8" stroke-width="1.5"/>
         <rect x="57" y="42" width="12" height="12" rx="1.5" fill="#fefce8" stroke="#d4d4d8" stroke-width="1.5"/>
         <line x1="27" y1="47" x2="39" y2="47" stroke="#d4d4d8" stroke-width="0.6"/>
         <line x1="57" y1="48" x2="69" y2="48" stroke="#d4d4d8" stroke-width="0.6"/>
-      </g>
-    `;
-  } else if (pName.includes('raviole')) {
-    return `
-      <g ${attrs}>
+      `;
+    } else if (pName.includes('raviole')) {
+      content = `
         <path d="M 28 42 L 39 42 L 39 53 L 28 53 Z" fill="#fbbf24" stroke="#b45309" stroke-width="1.5" transform="rotate(6 33 47)"/>
         <path d="M 58 43 L 69 43 L 69 54 L 58 54 Z" fill="#fbbf24" stroke="#b45309" stroke-width="1.5" transform="rotate(-6 63 48)"/>
-      </g>
-    `;
-  } else if (pName.includes('res') || pName.includes('beef') || pName.includes('carne')) {
-    return `
-      <g ${attrs}>
+      `;
+    } else if (pName.includes('res') || pName.includes('beef') || pName.includes('carne')) {
+      content = `
         <path d="M 27 45 Q 35 42, 45 47" fill="none" stroke="#78350f" stroke-width="4" stroke-linecap="round"/>
         <path d="M 52 47 Q 60 42, 69 46" fill="none" stroke="#78350f" stroke-width="4" stroke-linecap="round"/>
         <path d="M 30 45 Q 37 43, 43 46" fill="none" stroke="#fde68a" stroke-width="0.8" opacity="0.5"/>
-      </g>
-    `;
-  } else {
-    return `
-      <g ${attrs}>
+      `;
+    } else {
+      content = `
         <path d="M 30 46 Q 39 37, 48 46 Q 39 55, 30 46 Z" fill="#b91c1c" stroke="#7f1d1d" stroke-width="2"/>
         <circle cx="39" cy="46" r="5.5" fill="#f87171" opacity="0.7"/>
         <path d="M 50 48 Q 59 39, 68 48 Q 59 57, 50 48 Z" fill="#b91c1c" stroke="#7f1d1d" stroke-width="2"/>
         <circle cx="59" cy="48" r="5" fill="#f87171" opacity="0.7"/>
-      </g>
-    `;
-  }
+      `;
+    }
+
+    return `<g ${attrs} ${transform}>${content}</g>`;
+  }).join('');
 }
 
 // Generador de gráficos SVG específicos para Verduras y Complementos según su tipo
@@ -197,53 +194,56 @@ export function getVerdurasSvg(verdurasArray, accentDefault, animate = false) {
       }
     }
 
+    // Reacomodo de coordenadas: Germinado (Extrema Izq), Brócoli (Centro Izq), Champiñón (Centro Abajo), Elote (Centro Der), Naruto (Derecha), Nori (Fondo Der)
     if (vName.includes('brocoli')) {
       vegElements.push(`
         <g ${attrs}>
-          <circle cx="30" cy="38" r="3" fill="#16a34a"/>
-          <circle cx="34" cy="36" r="3.2" fill="#22c55e"/>
-          <circle cx="37" cy="39" r="2.8" fill="#16a34a"/>
-          <line x1="34" y1="39" x2="34" y2="46" stroke="#84cc16" stroke-width="2"/>
+          <circle cx="34" cy="37" r="3" fill="#16a34a"/>
+          <circle cx="38" cy="35" r="3.2" fill="#22c55e"/>
+          <circle cx="41" cy="38" r="2.8" fill="#16a34a"/>
+          <line x1="38" y1="38" x2="38" y2="45" stroke="#84cc16" stroke-width="2"/>
         </g>
       `);
     } else if (vName.includes('germinado')) {
       vegElements.push(`
         <g ${attrs}>
-          <path d="M 24 46 Q 26 38, 22 33" fill="none" stroke="#bef264" stroke-width="1.5" stroke-linecap="round"/>
-          <path d="M 28 47 Q 30 39, 27 33" fill="none" stroke="#d9f99d" stroke-width="1.5" stroke-linecap="round"/>
-          <path d="M 32 46 Q 34 39, 31 34" fill="none" stroke="#bef264" stroke-width="1.5" stroke-linecap="round"/>
+          <path d="M 21 44 Q 23 36, 19 31" fill="none" stroke="#bef264" stroke-width="1.5" stroke-linecap="round"/>
+          <path d="M 25 45 Q 27 37, 24 31" fill="none" stroke="#d9f99d" stroke-width="1.5" stroke-linecap="round"/>
+          <path d="M 29 44 Q 31 37, 28 32" fill="none" stroke="#bef264" stroke-width="1.5" stroke-linecap="round"/>
         </g>
       `);
     } else if (vName.includes('nori') || vName.includes('alga')) {
-      vegElements.push(`<g ${attrs}><path d="M 68 42 L 74 25 L 82 28 L 76 45 Z" fill="#1e293b" stroke="#0f172a" stroke-width="1.5"/></g>`);
+      vegElements.push(`<g ${attrs}><path d="M 70 42 L 76 23 L 84 26 L 78 45 Z" fill="#1e293b" stroke="#0f172a" stroke-width="1.5"/></g>`);
     } else if (vName.includes('elote') || vName.includes('maiz') || vName.includes('corn')) {
       vegElements.push(`
         <g ${attrs}>
-          <circle cx="45" cy="38" r="2.2" fill="#facc15"/>
-          <circle cx="49" cy="37" r="2" fill="#eab308"/>
-          <circle cx="53" cy="39" r="2.2" fill="#facc15"/>
-          <circle cx="47" cy="41" r="2" fill="#eab308"/>
+          <circle cx="51" cy="37" r="2.2" fill="#facc15"/>
+          <circle cx="55" cy="36" r="2" fill="#eab308"/>
+          <circle cx="59" cy="38" r="2.2" fill="#facc15"/>
+          <circle cx="53" cy="40" r="2" fill="#eab308"/>
         </g>
       `);
     } else if (vName.includes('champin') || vName.includes('hongo') || vName.includes('shiitake')) {
       vegElements.push(`
         <g ${attrs}>
-          <ellipse cx="33" cy="39" rx="6" ry="4" fill="#78350f" stroke="#451a03" stroke-width="1"/>
-          <path d="M 31 39 L 31 43 L 35 43 L 35 39 Z" fill="#fef3c7"/>
+          <ellipse cx="42" cy="43" rx="5.5" ry="3.5" fill="#78350f" stroke="#451a03" stroke-width="1"/>
+          <path d="M 40 43 L 40 47 L 44 47 L 44 43 Z" fill="#fef3c7"/>
+          <ellipse cx="49" cy="45" rx="5" ry="3" fill="#78350f" stroke="#451a03" stroke-width="1"/>
+          <path d="M 47 45 L 47 48 L 51 48 L 51 45 Z" fill="#fef3c7"/>
         </g>
       `);
     } else if (vName.includes('naruto') || vName.includes('surimi')) {
       vegElements.push(`
         <g ${attrs}>
-          <circle cx="62" cy="40" r="5" fill="#f8fafc" stroke="#ef4444" stroke-width="1.5"/>
-          <path d="M 62 37 Q 64 39, 62 41 Q 60 39, 62 37" fill="#ef4444"/>
+          <circle cx="64" cy="41" r="5" fill="#f8fafc" stroke="#ef4444" stroke-width="1.5"/>
+          <path d="M 64 38 Q 66 40, 64 42 Q 62 40, 64 38" fill="#ef4444"/>
         </g>
       `);
     } else {
       vegElements.push(`
         <g ${attrs}>
-          <path d="M23 45 Q 28 38, 33 45" fill="none" stroke="#22c55e" stroke-width="3.5" stroke-linecap="round"/>
-          <path d="M67 43 Q 72 36, 77 44" fill="none" stroke="#22c55e" stroke-width="3.5" stroke-linecap="round"/>
+          <path d="M25 45 Q 30 38, 35 45" fill="none" stroke="#22c55e" stroke-width="3.5" stroke-linecap="round"/>
+          <path d="M65 43 Q 70 36, 75 44" fill="none" stroke="#22c55e" stroke-width="3.5" stroke-linecap="round"/>
         </g>
       `);
     }

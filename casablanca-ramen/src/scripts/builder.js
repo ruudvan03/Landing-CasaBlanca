@@ -1,9 +1,40 @@
 import { showToast } from './state.js';
 import { updateProgress } from './progress.js';
-import { renderSidebar } from './sidebar.js';
-import { flyToSidebar } from './flyToSidebar.js';
+import { renderSidebar, setOnRamenEdit } from './sidebar.js';
+import { flyToSidebar } from './Flytosidebar.js';
+
+// Categorías que puede traer un ramen guardado y que se reflejan como
+// botones [data-step] en el menú de construcción.
+const BUILD_STEPS = ['caldo', 'fideo', 'proteina', 'verduras', 'extras'];
+
+// Marca en el menú los botones [data-step] que correspondan a lo que
+// ya está en state.ramen (usado al editar un ramen ya agregado), y
+// lleva al usuario hasta el bloque de construcción para que continúe
+// desde ahí sin tener que buscar dónde quedó.
+function syncBuilderSelection(state) {
+  document.querySelectorAll('[data-step]').forEach((btn) => btn.removeAttribute('data-selected'));
+
+  BUILD_STEPS.forEach((step) => {
+    const selectedIds = (state.ramen[step] || []).map((item) => String(item.id));
+    if (selectedIds.length === 0) return;
+    document.querySelectorAll(`[data-step="${step}"]`).forEach((btn) => {
+      if (selectedIds.includes(String(btn.dataset.id))) {
+        btn.setAttribute('data-selected', '');
+      }
+    });
+  });
+
+  updateProgress(state);
+
+  const builderAnchor = document.querySelector('[data-step]') || document.getElementById('add-ramen-btn');
+  if (builderAnchor) builderAnchor.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+  showToast('Editando tu ramen — ajusta lo que quieras y presiona "Agregar" para guardar los cambios');
+}
 
 export function initBuilder(state, ramenPrice) {
+  setOnRamenEdit((s) => syncBuilderSelection(s));
+
   document.querySelectorAll('[data-step]').forEach((btn) => {
     btn.addEventListener('click', () => {
       const step = btn.dataset.step;
